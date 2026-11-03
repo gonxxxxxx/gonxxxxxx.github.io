@@ -1,0 +1,2089 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>SUPVISIONS</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+  /* ===== EXCESS V (Chequered Ink, dafont) ===== */
+  /* OPCIÓN A — incrustada: pega el base64 del .ttf entre las comillas de url(...) más abajo.
+     OPCIÓN B — instalada en tu sistema: si tienes "Excess V" instalada, el navegador la usará
+     automáticamente por el nombre 'local("Excess V")' sin necesidad del base64. */
+  @font-face{
+    font-family:'Excess V';
+    src: local('Excess V'), local('ExcessV'), local('Excess V Regular')
+         /* , url('data:font/ttf;base64,PEGA_AQUI_EL_BASE64_DEL_TTF') format('truetype') */ ;
+    font-display:swap;
+  }
+  :root{
+    --dim:#5a5a66; --supfont:'Excess V','JetBrains Mono',monospace;
+    --bg0:#0a0c10; --bg1:#10141a; --bg2:#161b23; --bg3:#1d242e;
+    --line:rgba(255,255,255,.07); --line2:rgba(255,255,255,.13);
+    --ink:#eef1f6; --ink2:#9aa3b0; --ink3:#5f6875;
+    --key:#2196ff; --key2:#0d8de8; --keydim:rgba(33,150,255,.15);
+    --panelbg:rgba(13,16,21,.97); --accent:var(--key);
+    --mono:'JetBrains Mono',monospace; --sans:'Space Grotesk',sans-serif;
+    --r:7px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;min-height:100dvh;background:#000;overflow:hidden;font-family:var(--sans);color:#e8e8ee;}
+  canvas#c{position:fixed;inset:0;width:100vw;height:100dvh;display:block;}
+
+  .scopeBox{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:12;transition:opacity .4s;width:280px;height:110px;border-radius:8px;
+    border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.4);backdrop-filter:blur(3px);
+    box-shadow:0 0 30px rgba(0,0,0,.6), inset 0 0 24px rgba(255,255,255,.04);overflow:hidden;}
+  .scopeBox canvas{display:block;width:100%;height:100%;}
+  .scopeLbl{position:absolute;top:5px;left:8px;font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:rgba(255,255,255,.55);text-transform:lowercase;pointer-events:none;}
+  .keyLbl{position:absolute;top:5px;right:8px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;pointer-events:none;font-weight:700;}
+
+  .hud{position:fixed;z-index:10;pointer-events:none;text-shadow:0 0 8px #000;transition:opacity .4s;}
+  .tl{top:max(14px,env(safe-area-inset-top));left:max(18px,env(safe-area-inset-left));}
+  .tr{top:calc(max(14px,env(safe-area-inset-top)) + 50px);right:max(18px,env(safe-area-inset-right));text-align:right;}
+  .bl{bottom:max(16px,env(safe-area-inset-bottom));left:max(18px,env(safe-area-inset-left));}
+  .title{font-family:var(--supfont);font-size:14px;letter-spacing:.36em;text-transform:lowercase;}
+  .sub{font-size:10px;letter-spacing:.4em;color:var(--dim);text-transform:uppercase;margin-top:4px;}
+  .bpm{font-family:var(--sans);font-size:46px;font-weight:700;line-height:.9;font-variant-numeric:tabular-nums;}
+  .bpm small{font-size:9px;letter-spacing:.3em;color:var(--dim);display:block;font-weight:400;}
+  .lvl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--dim);line-height:1.6;}
+
+  .gate{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 50%, rgba(12,12,20,.5), #000 72%);backdrop-filter:blur(2px);}
+  .gate h1{font-family:var(--supfont);font-size:clamp(34px,9vw,100px);letter-spacing:.04em;text-transform:lowercase;line-height:.95;text-align:center;
+    background:linear-gradient(90deg,#ff0066,#ffcc00,#00ffaa,#0099ff,#cc33ff,#ff0066);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:300% 100%;animation:hue 5s linear infinite;}
+  @keyframes hue{to{background-position:300% 0;}}
+  .gate p{margin-top:14px;font-size:12px;letter-spacing:.42em;text-transform:uppercase;color:var(--dim);}
+  .ctrls{margin-top:38px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+  .btn{pointer-events:auto;cursor:pointer;border:1px solid var(--dim);background:transparent;color:#e8e8ee;font-family:var(--mono);font-size:13px;letter-spacing:.16em;padding:16px 26px;text-transform:lowercase;transition:.18s;}
+  .btn:hover{border-color:#fff;color:#fff;box-shadow:0 0 26px rgba(255,255,255,.25);}
+  .hint{margin-top:22px;max-width:480px;text-align:center;font-size:11px;line-height:1.7;color:#7a7a86;font-family:var(--sans);}
+  .err{color:#ff3355;font-size:11px;letter-spacing:.1em;margin-top:14px;min-height:14px;font-family:var(--mono);}
+
+  /* control panel — rekordbox-style */
+  #panel{position:fixed;top:0;right:0;height:100%;height:100dvh;width:330px;max-width:92vw;z-index:25;background:var(--panelbg);backdrop-filter:blur(20px);
+    border-left:1px solid var(--line);transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 14px 130px;}
+  #panel.open{transform:translateX(0);}
+  #panelHead{display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:linear-gradient(180deg,var(--bg1),var(--panelbg));margin:0 -14px 10px;padding:15px 16px;border-bottom:1px solid var(--line2);z-index:2;}
+  #panelHead b{font-family:var(--sans);font-weight:600;font-size:13px;letter-spacing:.18em;color:var(--ink);text-transform:uppercase;}
+  #panelHead b i{color:var(--key);font-style:normal;}
+  #panelClose{cursor:pointer;font-size:15px;line-height:1;color:var(--ink2);background:var(--bg2);width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:.15s;}
+  #panelClose:hover{background:var(--key);color:#fff;}
+  /* cada sección es una "tarjeta" agrupada */
+  #panel section{background:var(--bg1);border:1px solid var(--line);border-radius:var(--r);padding:12px 13px;margin-bottom:10px;}
+  #panel h3{font-family:var(--sans);font-weight:600;font-size:10px;letter-spacing:.14em;color:var(--ink2);text-transform:uppercase;margin:0 0 10px;display:flex;align-items:center;gap:8px;}
+  #panel h3::before{content:'';width:3px;height:12px;background:var(--key);border-radius:2px;flex:0 0 auto;}
+  #panel h3 span{color:var(--ink3);font-size:9px;letter-spacing:.04em;text-transform:none;font-weight:400;}
+  .row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px;}
+  .opt{cursor:pointer;border:1px solid var(--line2);background:var(--bg2);color:var(--ink2);font-family:var(--mono);font-size:10px;letter-spacing:.02em;padding:8px 11px;transition:.12s;flex:0 0 auto;border-radius:5px;}
+  .opt:hover{border-color:var(--key);color:var(--ink);background:var(--bg3);}
+  .opt.active{border-color:var(--key);color:#fff;background:var(--key);box-shadow:0 0 12px var(--keydim);}
+  .swatch{width:28px;height:28px;border-radius:6px;cursor:pointer;border:2px solid var(--line2);transition:.12s;position:relative;}
+  .swatch.sel{border-color:var(--key);box-shadow:0 0 8px var(--keydim);}
+  .swatch.sel::after{content:'×';position:absolute;top:-3px;right:1px;color:#fff;font-size:13px;text-shadow:0 0 4px #000;}
+  .slabel{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--ink3);margin:11px 0 5px;display:flex;justify-content:space-between;text-transform:uppercase;}
+  .slabel span:last-child{color:var(--key);font-weight:500;}
+  input[type=range]{width:100%;height:26px;-webkit-appearance:none;background:transparent;cursor:pointer;}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--bg3);border-radius:2px;}
+  input[type=range]::-moz-range-track{height:4px;background:var(--bg3);border-radius:2px;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--key);margin-top:-6px;box-shadow:0 0 8px var(--keydim);}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-radius:50%;background:var(--key);}
+  .tgl{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:10px;letter-spacing:.02em;color:var(--ink2);padding:8px 0;border-bottom:1px solid var(--line);}
+  .tgl:last-child{border-bottom:none;}
+  .switch{width:38px;height:21px;background:var(--bg3);border:1px solid var(--line2);border-radius:11px;position:relative;cursor:pointer;transition:.2s;flex:0 0 auto;}
+  .switch.on{background:var(--key);border-color:var(--key);}
+  .switch i{position:absolute;top:1px;left:1px;width:17px;height:17px;border-radius:50%;background:#6f7884;transition:.2s;}
+  .switch.on i{left:18px;background:#fff;}
+
+  #gearBtn{position:fixed;top:max(14px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));z-index:26;cursor:pointer;border:1px solid var(--line2);background:rgba(13,16,21,.8);
+    color:var(--ink);font-family:var(--sans);font-weight:500;font-size:12px;letter-spacing:.1em;padding:11px 16px;text-transform:uppercase;transition:.15s;border-radius:8px;backdrop-filter:blur(8px);}
+  #gearBtn:hover{border-color:var(--accent);box-shadow:0 0 16px rgba(255,255,255,.25);}
+  body.panelOpen #gearBtn{opacity:0;pointer-events:none;}
+
+  /* now playing (archivo local) */
+  #nowPlaying{position:fixed;left:max(18px,env(safe-area-inset-left));top:calc(max(14px,env(safe-area-inset-top)) + 48px);z-index:13;width:min(300px,52vw);
+    font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--ink2);text-shadow:0 0 8px #000;transition:opacity .4s;}
+  .npTop{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  #npPlay{flex:0 0 auto;width:26px;height:26px;border-radius:50%;border:1px solid var(--line2);background:rgba(13,16,21,.8);color:var(--ink);font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  #npPlay:hover{border-color:var(--key);}
+  #npName{flex:1 1 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #npTime{flex:0 0 auto;color:var(--ink3);font-variant-numeric:tabular-nums;}
+  #npSeek{height:14px;cursor:pointer;position:relative;touch-action:none;}
+  #npSeek::before{content:'';position:absolute;left:0;right:0;top:5px;height:4px;background:rgba(255,255,255,.14);border-radius:2px;}
+  #npSeek i{position:absolute;left:0;top:5px;height:4px;width:0;background:#fff;border-radius:2px;}
+
+  /* toast: avisos visibles aunque el gate esté cerrado */
+  #toast{position:fixed;left:50%;bottom:calc(max(18px,env(safe-area-inset-bottom)) + 130px);transform:translate(-50%,10px);z-index:45;opacity:0;pointer-events:none;
+    background:rgba(13,16,21,.92);border:1px solid var(--line2);border-radius:8px;padding:10px 16px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink);
+    transition:opacity .2s,transform .2s;max-width:86vw;text-align:center;backdrop-filter:blur(8px);}
+  #toast.show{opacity:1;transform:translate(-50%,0);}
+
+  /* ayuda / atajos */
+  #help{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);padding:16px;}
+  #help.show{display:flex;}
+  #help .box{background:var(--bg1);border:1px solid var(--line2);border-radius:10px;padding:20px 22px;max-width:420px;width:100%;max-height:90dvh;overflow:auto;}
+  #help h2{font-family:var(--sans);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);margin-bottom:14px;}
+  #help table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;color:var(--ink2);}
+  #help td{padding:5px 0;border-bottom:1px solid var(--line);vertical-align:top;}
+  #help td:first-child{color:var(--key);white-space:nowrap;padding-right:14px;}
+  #help p{margin-top:14px;font-size:10px;color:var(--ink3);font-family:var(--mono);line-height:1.6;}
+
+  /* looks guardados */
+  .opt.filled{border-color:var(--ink3);color:var(--ink);}
+  .opt.armed{border-color:#ff3355;color:#ff3355;background:rgba(255,51,85,.12);}
+
+  /* modo actuación: se ocultan cursor y botones tras unos segundos sin moverse; 'h' oculta todo el HUD */
+  body.idle{cursor:none;}
+  body.idle #gearBtn, body.idle #nowPlaying{opacity:0;pointer-events:none;}
+  body.clean .hud, body.clean .scopeBox, body.clean #nowPlaying{opacity:0;pointer-events:none;}
+
+  @media (max-width:600px){
+    .scopeBox{width:150px;height:62px;}
+    .scopeLbl{display:none;}
+    .bpm{font-size:32px;}
+    .lvl{font-size:9px;max-width:calc(100vw - 200px);}
+    #panel{width:100%;max-width:100vw;}
+    .gate .btn{padding:14px 18px;}
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="gearBtn">⚙ controls</div>
+
+<div class="scopeBox">
+  <canvas id="scope"></canvas>
+  <div class="scopeLbl">spectral · scope</div>
+  <div class="keyLbl" id="keyLbl">—</div>
+</div>
+
+<div class="hud tl"><div class="title" id="tName">supvisions</div><div class="sub" id="vizName">particle scope</div></div>
+<div class="hud tr"><div class="bpm" id="bpm">— <small>est. bpm</small></div></div>
+<div class="hud bl"><div class="lvl" id="lvl">sub ▁ low ▁ mid ▁ high ▁</div></div>
+
+<!-- PANEL -->
+<div id="panel">
+  <div id="panelHead"><b>⚙ supvisions</b><div id="panelClose">✕</div></div>
+  <section>
+  <h3>visualizer <span>1–9 · 0 · ← →</span></h3>
+  <div class="row" id="vizRow"></div>
+  </section>
+  <section id="secScope">
+  <h3>particle scope <span>solo este modo</span></h3>
+  <div class="slabel"><span>path</span><span></span></div>
+  <div class="row" id="scopePathRow"></div>
+  <div class="slabel"><span>lobes (circular)</span><span id="scLobesVal">5</span></div>
+  <input type="range" id="scLobes" min="2" max="16" step="1" value="5">
+  <div class="slabel"><span>spark density</span><span id="scDenVal">3</span></div>
+  <input type="range" id="scDen" min="1" max="10" step="1" value="3">
+  <div class="slabel"><span>spread</span><span id="scSpreadVal">0.40</span></div>
+  <input type="range" id="scSpread" min="0" max="1" step="0.01" value="0.4">
+  </section>
+  <section id="secRose">
+  <h3>rose window <span>solo este modo</span></h3>
+  <div class="slabel"><span>petals</span><span id="roPetalsVal">12</span></div>
+  <input type="range" id="roPetals" min="8" max="32" step="1" value="12">
+  <div class="slabel"><span>rings</span><span id="roRingsVal">4</span></div>
+  <input type="range" id="roRings" min="2" max="8" step="1" value="4">
+  <div class="slabel"><span>spin</span><span id="roSpinVal">1.0</span></div>
+  <input type="range" id="roSpin" min="0" max="4" step="0.1" value="1">
+  </section>
+  <section id="secXY">
+  <h3>xy scope <span>solo este modo</span></h3>
+  <div class="slabel"><span>phosphor hue</span><span id="xyHueVal">140</span></div>
+  <input type="range" id="xyHue" min="0" max="360" step="1" value="140">
+  <div class="slabel"><span>ratio x</span><span id="xyRatioVal">1</span></div>
+  <input type="range" id="xyRatio" min="1" max="8" step="1" value="1">
+  <div class="slabel"><span>ratio y</span><span id="xyRatioYVal">1</span></div>
+  <input type="range" id="xyRatioY" min="1" max="8" step="1" value="1">
+  <div class="slabel"><span>shape ↔ audio</span><span id="xyShapeVal">0.50</span></div>
+  <input type="range" id="xyShape" min="0" max="1" step="0.01" value="0.5">
+  <div class="slabel"><span>rotation</span><span id="xyRotVal">0.40</span></div>
+  <input type="range" id="xyRot" min="0" max="2" step="0.01" value="0.4">
+  <div class="slabel"><span>glow</span><span id="xyGlowVal">0.60</span></div>
+  <input type="range" id="xyGlow" min="0" max="1" step="0.01" value="0.6">
+  <div class="tgl"><span>graticule grid</span><div class="switch on" id="xyGrid"><i></i></div></div>
+  </section>
+  <section id="secStrobe">
+  <h3>strobe shapes <span>solo este modo</span></h3>
+  <div class="slabel"><span>shape</span><span></span></div>
+  <div class="row" id="ssShapeRow"></div>
+  <div class="slabel"><span>pattern</span><span></span></div>
+  <div class="row" id="ssLayoutRow"></div>
+  <div class="slabel"><span>density</span><span id="ssDenVal">14</span></div>
+  <input type="range" id="ssDenRange" min="1" max="80" step="1" value="14">
+  <div class="slabel"><span>spin</span><span id="ssSpinVal">0.60</span></div>
+  <input type="range" id="ssSpinRange" min="0" max="3" step="0.05" value="0.6">
+  <div class="tgl"><span>filled shapes</span><div class="switch on" id="ssFill"><i></i></div></div>
+  </section>
+  <section>
+  <h3>looks guardados <span>tap = cargar · shift+1–4</span></h3>
+  <div class="row" id="lookRow"></div>
+  <div class="row"><div class="opt" id="lookSave">💾 guardar look en…</div></div>
+  </section>
+  <section>
+  <h3>auto-vj <span>genera y transiciona solo · a</span></h3>
+  <div class="tgl"><span>enable auto mode</span><div class="switch" id="swAutoVJ"><i></i></div></div>
+  <div class="slabel"><span>change every</span><span id="autoIntVal">8s</span></div>
+  <input type="range" id="autoInt" min="2" max="30" step="1" value="8">
+  <div class="slabel"><span>transition smoothness</span><span id="autoSmVal">0.040</span></div>
+  <input type="range" id="autoSm" min="0.005" max="0.2" step="0.005" value="0.04">
+  <div class="tgl"><span>also change visualizer</span><div class="switch on" id="swAutoMode"><i></i></div></div>
+  </section>
+  <section>
+  <h3>color</h3>
+  <div class="tgl"><span>auto random (jump on beat)</span><div class="switch on" id="swRandColor"><i></i></div></div>
+  <div class="slabel"><span>full spectrum — tap or drag</span><span></span></div>
+  <canvas id="spectrumStrip" width="280" height="34" style="width:100%;height:34px;border:1px solid var(--line);border-radius:6px;cursor:crosshair;display:block;touch-action:none;"></canvas>
+  <div class="row" style="align-items:center;margin-top:8px;">
+    <input type="color" id="colorPick" value="#ff0066" style="width:40px;height:32px;border:1px solid var(--line);background:none;cursor:pointer;padding:0;border-radius:6px;">
+    <div class="opt" id="colorAdd">+ add color</div>
+    <div class="opt" id="colorClear">reset</div>
+  </div>
+  <div class="slabel"><span>selected palette</span><span></span></div>
+  <div class="row" id="customRow"></div>
+  <div class="slabel"><span>saturation</span><span id="satVal">100</span></div>
+  <input type="range" id="satRange" min="0" max="100" step="1" value="100">
+  <div class="slabel"><span>palette lock <span style="color:var(--ink3)">raw ◄► rainbow</span></span><span id="lockVal">0.85</span></div>
+  <input type="range" id="lockRange" min="0" max="1" step="0.01" value="0.85">
+  <div class="slabel"><span>presets</span><span></span></div>
+  <div class="row" id="presetRow"></div>
+  </section>
+  <section>
+  <h3>combine modes <span>overlay sobre el principal</span></h3>
+  <div class="row" id="overlayRow"></div>
+  <div class="slabel"><span>overlay opacity</span><span id="ovOpVal">0.50</span></div>
+  <input type="range" id="ovOp" min="0.1" max="1" step="0.01" value="0.5">
+  <div class="slabel"><span>blend</span><span></span></div>
+  <div class="row" id="ovBlendRow"></div>
+  </section>
+  <section>
+  <h3>feedback & glow <span>trails · bloom</span></h3>
+  <div class="slabel"><span>feedback (trails)</span><span id="fbVal">0.40</span></div>
+  <input type="range" id="fbRange" min="0" max="0.95" step="0.01" value="0.4">
+  <div class="slabel"><span>feedback zoom</span><span id="fbZoomVal">0.45</span></div>
+  <input type="range" id="fbZoom" min="-1" max="1" step="0.01" value="0.45">
+  <div class="slabel"><span>feedback rotation</span><span id="fbRotVal">0.30</span></div>
+  <input type="range" id="fbRot" min="-2" max="2" step="0.01" value="0.3">
+  <div class="slabel"><span>bloom / glow</span><span id="bloomVal">0.40</span></div>
+  <input type="range" id="bloomRange" min="0" max="1.5" step="0.01" value="0.4">
+  <div class="slabel"><span>vignette</span><span id="gvigVal">0.70</span></div>
+  <input type="range" id="gvigRange" min="0" max="1" step="0.01" value="0.7">
+  <div class="slabel"><span>anti-blanco <span style="color:var(--ink3)">off ◄► negro profundo</span></span><span id="wgVal">0.60</span></div>
+  <input type="range" id="wgRange" min="0" max="1" step="0.01" value="0.6">
+  <div class="slabel" style="text-transform:none;color:#666">si la imagen se quema a blanco, apaga antes las estelas y baja el bloom</div>
+  </section>
+  <section>
+  <h3>kaleidoscope <span>efecto global · modos compatibles · k</span></h3>
+  <div class="tgl"><span>enable kaleidoscope</span><div class="switch" id="swKaleidoOn"><i></i></div></div>
+  <div class="slabel"><span>segments</span><span id="segVal">6</span></div>
+  <div class="row" id="segRow"></div>
+  <div class="tgl"><span>auto by frequency</span><div class="switch" id="swAuto"><i></i></div></div>
+  </section>
+  <section>
+  <h3>grid mirror (NxN)</h3>
+  <div class="slabel"><span>tiles per side</span><span id="gridVal">1</span></div>
+  <input type="range" id="gridRange" min="1" max="32" step="1" value="1">
+  <div class="tgl"><span>mirror tiles</span><div class="switch on" id="swMirror"><i></i></div></div>
+  </section>
+  <section>
+  <h3>vhs mode <span>v</span></h3>
+  <div class="tgl"><span>enable vhs</span><div class="switch" id="vhsOn"><i></i></div></div>
+  <div class="slabel"><span>scanlines</span><span id="vhsScanVal">0.35</span></div>
+  <input type="range" id="vhsScan" min="0" max="1" step="0.01" value="0.35">
+  <div class="slabel"><span>chroma shift</span><span id="vhsChromaVal">0.40</span></div>
+  <input type="range" id="vhsChroma" min="0" max="1" step="0.01" value="0.4">
+  <div class="slabel"><span>color bleed</span><span id="vhsBleedVal">0.30</span></div>
+  <input type="range" id="vhsBleed" min="0" max="1" step="0.01" value="0.3">
+  <div class="slabel"><span>noise / grain</span><span id="vhsNoiseVal">0.25</span></div>
+  <input type="range" id="vhsNoise" min="0" max="1" step="0.01" value="0.25">
+  <div class="slabel"><span>tracking wobble</span><span id="vhsWobbleVal">0.30</span></div>
+  <input type="range" id="vhsWobble" min="0" max="1" step="0.01" value="0.3">
+  <div class="slabel"><span>vignette</span><span id="vhsVigVal">0.50</span></div>
+  <input type="range" id="vhsVig" min="0" max="1" step="0.01" value="0.5">
+  </section>
+  <section>
+  <h3>strobe fx</h3>
+  <div class="slabel"><span>intensity</span><span id="strVal">hi</span></div>
+  <input type="range" id="strRange" min="0" max="3" step="1" value="2">
+  <div class="tgl"><span>white flash (frases · drops · max)</span><div class="switch on" id="fxWhite"><i></i></div></div>
+  <div class="tgl"><span>color invert (1er tiempo)</span><div class="switch" id="fxInvert"><i></i></div></div>
+  <div class="tgl"><span>blackout cut</span><div class="switch on" id="fxBlack"><i></i></div></div>
+  <div class="tgl"><span>rgb split</span><div class="switch on" id="fxRgb"><i></i></div></div>
+  <div class="tgl"><span>shutter bars</span><div class="switch" id="fxShutter"><i></i></div></div>
+  <div class="tgl"><span>color jump (cada 16/8/4 beats)</span><div class="switch on" id="fxJump"><i></i></div></div>
+  <div class="tgl"><span>reseed pattern (cada 2 compases)</span><div class="switch on" id="fxReseed"><i></i></div></div>
+  <div class="slabel" style="text-transform:none;color:#666">los efectos siguen el compás (1er tiempo, frases de 4 compases y drops) y nunca pasan de 3 destellos por segundo</div>
+  </section>
+  <section>
+  <h3>image / mosaic</h3>
+  <div class="row">
+    <div class="opt" id="imgImport">+ importar imagen</div>
+    <div class="opt" id="imgClear">quitar</div>
+  </div>
+  <input type="file" id="imgInput" accept="image/*" style="display:none">
+  <div class="tgl"><span>usar imagen en rosetón</span><div class="switch" id="swRoseImg"><i></i></div></div>
+  <div class="slabel" style="color:#666">tip: modos "image vitral" y "rose window" usan la imagen</div>
+  </section>
+  <section>
+  <h3>audio input</h3>
+  <div class="slabel"><span>sensitivity / gain</span><span id="gainVal">1.0×</span></div>
+  <input type="range" id="gainRange" min="0.1" max="3" step="0.05" value="1">
+  <div class="tgl"><span>auto-nivel por banda (AGC)</span><div class="switch on" id="swAgc"><i></i></div></div>
+  <div class="slabel"><span>smoothing</span><span id="smVal">0.78</span></div>
+  <input type="range" id="smRange" min="0" max="0.95" step="0.01" value="0.78">
+  </section>
+  <section>
+  <h3>rendimiento <span id="fpsTxt">— fps</span></h3>
+  <div class="slabel"><span>calidad de render</span><span id="qualVal">auto</span></div>
+  <div class="row" id="qualRow"></div>
+  <div class="slabel" style="text-transform:none;color:#666">auto baja la resolución si el equipo no llega a ~40 fps</div>
+  </section>
+  <section>
+  <h3>actions</h3>
+  <div class="row">
+    <div class="opt" id="actRandom" style="border-color:var(--accent);color:var(--accent);font-weight:500;">🎲 randomize all</div>
+    <div class="opt" id="actShuffle">↻ shuffle look</div>
+    <div class="opt" id="actShot">⬇ save image</div>
+    <div class="opt" id="actSrc">change source</div>
+    <div class="opt" id="actFull">fullscreen</div>
+    <div class="opt" id="actClean">ocultar hud</div>
+    <div class="opt" id="actHelp">⌨ atajos</div>
+    <div class="opt" id="actReset">↺ reset ajustes</div>
+  </div>
+  </section>
+  </div>
+
+<!-- GATE -->
+<div class="gate" id="gate">
+  <h1>supvisions</h1>
+  <p>rave visual engine</p>
+  <div class="ctrls">
+    <button class="btn" id="bFile">▶ subir audio</button>
+    <button class="btn" id="bSys">capturar sistema</button>
+    <button class="btn" id="bMic">micrófono</button>
+    <button class="btn" id="bDemo">modo demo</button>
+    <button class="btn" id="bBack" style="display:none">← volver</button>
+  </div>
+  <input type="file" id="fileInput" accept="audio/*" style="display:none">
+  <div class="err" id="err"></div>
+  <div class="hint"><b style="color:#fff">subir audio:</b> reproduce un mp3/wav de tu dispositivo (o arrástralo a la ventana) y reacciona a él — funciona en iphone como archivo local. <b style="color:#fff">capturar sistema:</b> comparte pestaña/ventana con "compartir audio" (solo PC). <b style="color:#fff">micrófono:</b> escucha la sala (requiere https). <b style="color:#fff">demo:</b> música interna sintética. ⚠️ luces estroboscópicas intensas (fotosensibilidad).</div>
+</div>
+
+<div id="toast"></div>
+
+<div id="help"><div class="box">
+  <h2>atajos de teclado</h2>
+  <table>
+    <tr><td>1–9 · 0 · ← →</td><td>cambiar visualizer</td></tr>
+    <tr><td>espacio</td><td>saltar color + nueva forma</td></tr>
+    <tr><td>r / shift+r</td><td>shuffle look / randomizar todo</td></tr>
+    <tr><td>a</td><td>auto-vj on/off</td></tr>
+    <tr><td>k</td><td>kaleidoscope on/off</td></tr>
+    <tr><td>v</td><td>vhs on/off</td></tr>
+    <tr><td>c</td><td>abrir/cerrar controles</td></tr>
+    <tr><td>h</td><td>ocultar hud (modo limpio)</td></tr>
+    <tr><td>f</td><td>pantalla completa</td></tr>
+    <tr><td>s</td><td>guardar imagen</td></tr>
+    <tr><td>shift+1–4</td><td>cargar look guardado</td></tr>
+    <tr><td>? · esc</td><td>esta ayuda · cerrar</td></tr>
+  </table>
+  <p>el cursor y el botón de controles se ocultan solos tras 3 s sin mover el ratón. tus ajustes se guardan en este navegador.</p>
+</div></div>
+
+<script>
+const cv=document.getElementById('c'), ctx=cv.getContext('2d');
+const sc=document.getElementById('scope'), sctx=sc.getContext('2d');
+let W,H,DPR;
+// la escena (con sus estelas) se pinta aquí; la pantalla se recompone desde este canvas cada frame
+const sceneCv=document.createElement('canvas'), sceneCtx=sceneCv.getContext('2d');
+// calidad de render: 'auto' baja la resolución sola si caen los fps
+const QUALITY_OPTS=['auto','alta','media','baja'], QUALITY_SCALE={alta:1,media:0.75,baja:0.5};
+let QUALITY='auto', autoScale=1;
+function renderScale(){ return QUALITY==='auto'? autoScale : QUALITY_SCALE[QUALITY]; }
+function resize(){
+  DPR=Math.min(devicePixelRatio||1,2)*renderScale();
+  cv.width=Math.round(innerWidth*DPR); cv.height=Math.round(innerHeight*DPR); W=cv.width; H=cv.height;
+  sceneCv.width=W; sceneCv.height=H;
+  cv.style.width=innerWidth+'px'; cv.style.height=innerHeight+'px';
+  sc.width=Math.round(sc.clientWidth*DPR); sc.height=Math.round(sc.clientHeight*DPR);
+}
+addEventListener('resize',resize); resize();
+
+// offscreen buffer for grid tiling
+const buf=document.createElement('canvas'); const bctx=buf.getContext('2d');
+
+// ===== COLOR (raw rave aesthetic) =====
+let COLORMODE='random';
+let fixedHues=[0,18];   // por defecto rojo sangre + ámbar (look hard techno)
+let fixedSat=100;
+// presets RAW estilo rave/hard-techno: pocos colores, alto contraste, crudos
+// formato: {h:[hues], s:saturación, mode:'mono'|'duo'|'full'}
+const PRESETS={
+  'blood':    {h:[0,8],      s:100, mode:'duo'},   // rojo sangre + naranja (Outworld)
+  'amber':    {h:[28,40],    s:100, mode:'duo'},   // ámbar industrial (osciloscopio)
+  'acid':     {h:[80,140],   s:100, mode:'duo'},   // verde ácido
+  'toxic':    {h:[140,90],   s:100, mode:'duo'},   // verde tóxico
+  'cyan':     {h:[180,195],  s:100, mode:'duo'},   // cyan láser
+  'ultra':    {h:[280,300],  s:100, mode:'duo'},   // ultravioleta
+  'white hot':{h:[0,210],    s:30,  mode:'mono'},  // blanco frío crudo
+  'red/white':{h:[0,0],      s:100, mode:'mono'},  // rojo+blanco (clásico schranz)
+  'inferno':  {h:[0,20,38],  s:100, mode:'full'},  // fuego
+  'rgb split':{h:[0,120,240],s:100, mode:'full'},  // RGB crudo
+  'mono':     {h:[200],      s:12,  mode:'mono'}    // casi b/n
+};
+let palette=randomPalette(), bgHue=Math.random()*360, hueDrift=(Math.random()-0.5)*0.5;
+// genera paletas raw: predominan mono y duo (alto contraste), rara vez full
+function randomPalette(){
+  const r=Math.random();
+  let hues, sat, mode;
+  if(r<0.45){ // MONO: un solo color dominante + sus variaciones (lo más raw)
+    const base=Math.random()*360; hues=[base, base, base];
+    sat=70+Math.random()*30; mode='mono';
+  } else if(r<0.85){ // DUO: dos colores de alto contraste (complementario o cercano)
+    // complementarios (rojo+cian…) sumados en modo 'lighter' dan BLANCO: ahora son la excepción
+    const base=Math.random()*360, r2=Math.random();
+    const pair= r2<0.25? base+(150+Math.random()*60) : r2<0.6? base+(90+Math.random()*40) : base+(15+Math.random()*25);
+    hues=[base, pair]; sat=85+Math.random()*15; mode='duo';
+  } else { // FULL: triádico crudo, raro
+    const base=Math.random()*360; hues=[base, base+120, base+240]; sat=95; mode='full';
+  }
+  hues=hues.map(h=>((h%360)+360)%360);
+  return {hues, sat, mode};
+}
+function jumpColors(){
+  if(COLORMODE==='fixed'){ palette={hues:fixedHues.slice(), sat:fixedSat, mode:fixedHues.length<=1?'mono':(fixedHues.length<=2?'duo':'full')}; hueDrift=(Math.random()-0.5)*0.2; }
+  else { palette=randomPalette(); hueDrift=(Math.random()-0.5)*0.5; }
+}
+function hsl(h,s,l,a){ return `hsla(${((h%360)+360)%360},${s}%,${l}%,${a==null?1:a})`; }
+// QUANTIZE: encaja cualquier hue a la familia de la paleta -> look raw mono/duo
+// PALETTE_LOCK controla cuánto se respeta la paleta (1 = total, 0 = libre arcoíris)
+let PALETTE_LOCK=0.85;
+function qh(h){
+  if(PALETTE_LOCK<=0.01 || !palette || palette.mode==='full') return h;
+  // hue objetivo = el de paleta más cercano
+  let best=palette.hues[0], bd=999;
+  for(const ph of palette.hues){ let d=Math.abs(((h-ph+540)%360)-180); if(d<bd){bd=d;best=ph;} }
+  // mezcla entre el hue pedido y el de paleta según PALETTE_LOCK
+  const lock=palette.mode==='mono'? Math.min(1,PALETTE_LOCK+0.1):PALETTE_LOCK;
+  return best + (((h-best+540)%360-180))*(1-lock);
+}
+// color de paleta: hsl que respeta la familia cromática
+function pc(h,s,l,a){
+  const qhh=qh(h);
+  if(PALETTE_LOCK>0.5 && palette && palette.mode!=='full'){
+    // look raw: saturación al máximo y techo de luminosidad para que 'lighter' no lave a blanco
+    s=Math.min(100, Math.max(s, palette.sat));
+    l=Math.min(l, 58 + (1-PALETTE_LOCK)*40);
+  } else l=Math.min(l, 64);   // también en paletas 'full' y modo arcoíris: color saturado, no pastel/blanco
+  return hsl(qhh,s,l,a);
+}
+function pick(){ return palette.hues[(Math.random()*palette.hues.length)|0]; }
+// hue de paleta por índice (las paletas tienen 1–10 colores; indexar con %6 daba undefined → NaN)
+function phue(i){ const n=palette.hues.length; return palette.hues[((i%n)+n)%n]; }
+
+// ===== STATE / OPTIONS =====
+const VIZ=['particle scope','rose window','chaos','kaleido fractal','strobe lights','plasma','warp stars','wmp bars','lasers','tunnel','grid pulse','image vitral','xy scope','spirograph','wave tunnel','fluid'];
+let vizIdx=0;
+// combinar modos: overlay secundario
+let OVERLAY=-1, OVERLAY_OP=0.5; let OVERLAY_BLEND='lighter';
+let SEGMENTS=6, AUTOSEG=false;
+let GRID=1, GRIDMIRROR=true;
+let GAIN=1.0, AGC=true, SMOOTH=0.78;
+let STROBE=2;
+// particle scope (Visual Lab Pro style)
+let SCOPE_PATH=1, SCOPE_LOBES=5, SCOPE_DENSITY=3, SCOPE_SPREAD=0.4, SCOPE_SHAPE_ROT=1;
+const SCOPE_PATH_NAMES=['linear','circular','lissajous'];
+// rose window
+let ROSE_PETALS=12, ROSE_RINGS=4, ROSE_SPIN=1, ROSE_USEIMG=false;
+// xy scope (osciloscopio analógico)
+let XY_HUE=140, XY_RATIO=1, XY_RATIO_Y=1, XY_SHAPE=0.5, XY_GLOW=0.6, XY_GRID=true, XY_ROT=0.4;
+// kaleido global (aplica a todos los modos compatibles)
+let KALEIDO_ON=false;
+// feedback frame (trails MilkDrop)
+let FEEDBACK=0.4, FEEDBACK_ZOOM=0.45, FEEDBACK_ROT=0.3, FB_DIR=1;
+let fbCanvas=null, fbCtx=null;
+// bloom / glow
+let BLOOM=0.35;
+let bloomCanvas=null, bloomCtx=null;
+let GLOBAL_VIG=0.7, gVigCanvas=null;
+// imported image
+let userImg=null;
+// strobe-lights pattern controls
+let STROBE_SHAPE=1, STROBE_LAYOUT=0, STROBE_DENSITY=14, STROBE_FILL=true, STROBE_SPIN=0.6;
+const STROBE_SHAPE_NAMES=['triangle','square','circle','hexagon','star','diamond','cross'];
+const STROBE_LAYOUT_NAMES=['row','ring','grid','spiral','scatter'];
+// VHS post-process
+const VHS={on:false, scan:0.35, chroma:0.4, noise:0.25, wobble:0.3, vignette:0.5, bleed:0.3};
+// invert apagado de serie: invertir un frame negro lo convierte en un frame BLANCO
+const FX={white:true,invert:false,black:true,rgb:true,shutter:false,jump:true,reseed:true};
+
+// ===== AUDIO =====
+let audioCtx, analyser, freq, wave, srcNode, running=false, beatAn=null, beatF=null;
+const FFT=2048; let sampleRate=44100; // se actualiza con el sample rate real del dispositivo (suele ser 48000)
+let demoMode=false, demoNodes=null, liveStream=null;
+const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+
+function ensureCtx(){
+  if(!audioCtx){ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); sampleRate=audioCtx.sampleRate; }
+  if(audioCtx.state==='suspended') audioCtx.resume();
+}
+// para la fuente anterior: demo (osciladores), mic/sistema (pistas) y archivo (pausa)
+function stopSources(){
+  if(demoNodes){ demoMode=false; clearInterval(demoNodes.timer); try{ demoNodes.master.disconnect(); }catch(e){} demoNodes=null; }
+  if(liveStream){ liveStream.getTracks().forEach(t=>t.stop()); liveStream=null; }
+  if(fileAudio){ try{ fileAudio.pause(); }catch(e){} }
+  const np=document.getElementById('nowPlaying'); if(np) np.style.display='none';
+}
+function startAnalyser(node){
+  ensureCtx();
+  // desconectar SOLO del analizador: disconnect() sin argumentos también cortaba la salida a los altavoces del archivo
+  if(srcNode && analyser){ try{ srcNode.disconnect(analyser); }catch(e){} try{ srcNode.disconnect(beatAn); }catch(e){} try{ srcNode.disconnect(tdAn); }catch(e){} }
+  srcNode=node;
+  // rango -95..-10 dB: con el de serie (-100..-30) el bombo de un tema masterizado se quedaba
+  // clavado en 255 (medido: >50% del tiempo) y el detector de beats no veía nada
+  analyser=audioCtx.createAnalyser(); analyser.fftSize=FFT; analyser.smoothingTimeConstant=SMOOTH;
+  analyser.minDecibels=-95; analyser.maxDecibels=-10;
+  srcNode.connect(analyser);
+  freq=new Uint8Array(analyser.frequencyBinCount); wave=new Uint8Array(analyser.fftSize);
+  // analizador aparte, sin suavizado y en float (dB reales): bandas, bombo y tempo salen de aquí
+  beatAn=audioCtx.createAnalyser(); beatAn.fftSize=2048; beatAn.smoothingTimeConstant=0;
+  srcNode.connect(beatAn); beatF=new Float32Array(beatAn.frequencyBinCount);
+  // y otro solo para la onda (85 ms): de aquí sale la curva de ritmo a 100 Hz para el tempo
+  tdAn=audioCtx.createAnalyser(); tdAn.fftSize=4096; srcNode.connect(tdAn);
+  resetAnalysis();
+  showGate(false);
+  keepAwake();
+  if(!running){ running=true; document.getElementById('bBack').style.display=''; poke(); loop(); }
+}
+async function startSystem(){ setErr('');
+  if(isIOS){ setErr('iphone no permite capturar el sistema · usa demo o micrófono (https)'); return; }
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia){ setErr('este navegador no permite capturar audio del sistema · prueba chrome/edge en PC'); return; }
+  try{ const s=await navigator.mediaDevices.getDisplayMedia({video:true,audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    if(!s.getAudioTracks().length){ s.getTracks().forEach(t=>t.stop()); setErr('sin audio · activa "compartir audio"'); return; }
+    s.getVideoTracks().forEach(t=>t.stop());
+    stopSources(); liveStream=s; ensureCtx(); startAnalyser(audioCtx.createMediaStreamSource(s));
+    s.getAudioTracks()[0].addEventListener('ended',()=>{ if(liveStream===s){ liveStream=null; showGate(true); setErr('la captura se detuvo · elige otra fuente'); } });
+  }catch(e){ setErr('cancelado · '+(e.name||'')); }
+}
+async function startMic(){ setErr('');
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ setErr('micrófono no disponible · abre por https (no como archivo local)'); return; }
+    const s=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    stopSources(); liveStream=s; ensureCtx(); startAnalyser(audioCtx.createMediaStreamSource(s));
+  }catch(e){ setErr(location.protocol==='file:'? 'micrófono bloqueado en archivo local · usa demo o abre por https' : 'mic denegado · '+(e.name||'')); }
+}
+
+// mantener la pantalla encendida durante la sesión (Screen Wake Lock)
+let wakeLock=null;
+async function keepAwake(){
+  try{ if('wakeLock' in navigator && !wakeLock){ wakeLock=await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{ wakeLock=null; }); } }catch(e){}
+}
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible' && running) keepAwake(); });
+
+// ===== DEMO MODE: synthetic rave audio (no input needed) =====
+// secuenciador con reloj de audio (lookahead): el timing no depende de setInterval, así no hay jitter
+function startDemo(){ setErr('');
+  stopSources(); ensureCtx(); demoMode=true;
+  const ac=audioCtx;
+  // master into analyser AND speakers (low volume) so you also hear it
+  const master=ac.createGain(); master.gain.value=0.22; master.connect(ac.destination);
+  const nb=ac.createBuffer(1, ac.sampleRate*0.5|0, ac.sampleRate), nd=nb.getChannelData(0);
+  for(let i=0;i<nd.length;i++) nd[i]=Math.random()*2-1;
+  const bpmD=138, s16=60/bpmD/4;
+  const roots=[110,110,82.4,98];   // A2 A2 E2 G2 — un compás por nota (por encima del bombo para no taparlo en la detección de beat)
+  function kick(t){ const o=ac.createOscillator(), g=ac.createGain();
+    o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(45,t+0.12);
+    g.gain.setValueAtTime(1,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.35);
+    o.connect(g).connect(master); o.start(t); o.stop(t+0.4); }
+  function noise(t,dur,type,f,vol){ const s=ac.createBufferSource(); s.buffer=nb;
+    const fl=ac.createBiquadFilter(); fl.type=type; fl.frequency.value=f; const g=ac.createGain();
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    s.connect(fl).connect(g).connect(master); s.start(t); s.stop(t+dur+0.02); }
+  function bass(t,f,open){ const o=ac.createOscillator(); o.type='sawtooth'; o.frequency.setValueAtTime(f,t);
+    const fl=ac.createBiquadFilter(); fl.type='lowpass'; fl.Q.value=8;
+    fl.frequency.setValueAtTime(200+open*1800,t); fl.frequency.exponentialRampToValueAtTime(120,t+s16*0.9);
+    const g=ac.createGain(); g.gain.setValueAtTime(0.16,t); g.gain.exponentialRampToValueAtTime(0.001,t+s16*0.8);
+    o.connect(fl).connect(g).connect(master); o.start(t); o.stop(t+s16); }
+  let step=0, next=ac.currentTime+0.06;
+  function sched(){
+    if(!demoMode) return;
+    while(next < ac.currentTime+0.12){
+      const s=step%16, bar=(step/16)|0;
+      if(s%4===0) kick(next);                                   // four-on-the-floor
+      if(s%4===2) noise(next,0.06,'highpass',8000,0.32);        // hat abierto en el offbeat
+      else if(s%2===1) noise(next,0.02,'highpass',9500,0.1);    // hats cerrados
+      if(s===4||s===12) noise(next,0.14,'bandpass',1500,0.45);  // clap en 2 y 4
+      if(s%4!==0) bass(next, roots[bar%4]*(s%8===6?2:1), 0.5+0.5*Math.sin(step*0.04)); // bajo rodante, filtro que abre y cierra
+      next+=s16; step++;
+    }
+  }
+  const timer=setInterval(sched,25); sched();
+  demoNodes={master, timer};
+  startAnalyser(master); // analyse the synth master bus
+}
+
+// errores: en el gate si está visible; si no, como aviso flotante
+function setErr(m){ document.getElementById('err').textContent=m; if(m && !gateVisible()) toast(m); }
+let toastT=0;
+function toast(m){ const el=document.getElementById('toast'); el.textContent=m; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2600); }
+const gateEl=document.getElementById('gate');
+function gateVisible(){ return gateEl.style.display!=='none'; }
+function showGate(on){ gateEl.style.display=on?'flex':'none'; }
+document.getElementById('bSys').onclick=startSystem;
+document.getElementById('bMic').onclick=startMic;
+document.getElementById('bDemo').onclick=startDemo;
+document.getElementById('bBack').onclick=()=>showGate(false);
+
+// ===== PANEL OPEN/CLOSE =====
+const panel=document.getElementById('panel');
+function setPanel(open){ panel.classList.toggle('open',open); document.body.classList.toggle('panelOpen',open); if(open) poke(); }
+document.getElementById('gearBtn').onclick=()=>setPanel(!panel.classList.contains('open'));
+document.getElementById('panelClose').onclick=()=>setPanel(false);
+// cerrar tocando fuera del panel (en el canvas)
+cv.addEventListener('pointerdown',()=>{ if(panel.classList.contains('open')) setPanel(false); });
+
+// ===== MODO ACTUACIÓN: ocultar cursor y botón tras 3 s quieto =====
+let idleT=0;
+function poke(){
+  document.body.classList.remove('idle'); clearTimeout(idleT);
+  idleT=setTimeout(()=>{ if(running && !panel.classList.contains('open') && !gateVisible()) document.body.classList.add('idle'); },3000);
+}
+['pointermove','pointerdown','keydown'].forEach(ev=>addEventListener(ev,poke,{passive:true}));
+
+// ===== FILE UPLOAD playback =====
+let fileAudio=null, fileSrcNode=null, fileTap=null;
+document.getElementById('bFile').onclick=()=>document.getElementById('fileInput').click();
+document.getElementById('fileInput').onchange=function(e){ const f=e.target.files&&e.target.files[0]; if(f) loadAudioFile(f); this.value=''; };
+
+let fileUrl=null;
+function loadAudioFile(f){
+  if(!/^audio\//.test(f.type) && !/\.(mp3|wav|m4a|aac|ogg|flac|opus)$/i.test(f.name)){ setErr('eso no parece un audio'); return; }
+  setErr('cargando…');
+  stopSources(); ensureCtx();
+  if(!fileAudio){ fileAudio=new Audio(); fileAudio.crossOrigin='anonymous'; fileAudio.loop=true;
+    fileAudio.onplay=fileAudio.onpause=()=>{ const b=document.getElementById('npPlay'); if(b) b.textContent=fileAudio.paused?'▶':'❚❚'; }; }
+  if(fileUrl) URL.revokeObjectURL(fileUrl);
+  fileUrl=URL.createObjectURL(f); fileAudio.src=fileUrl;
+  fileAudio.onerror=()=>setErr('no se pudo leer el audio · prueba otro formato (mp3/wav/m4a)');
+  fileAudio.oncanplay=()=>{ setErr(''); };
+  fileAudio.ontimeupdate=updateSeek;
+  if(!fileSrcNode){ fileSrcNode=audioCtx.createMediaElementSource(fileAudio); fileTap=audioCtx.createGain(); fileTap.gain.value=1; fileSrcNode.connect(fileTap); fileTap.connect(audioCtx.destination); }
+  fileAudio.play().then(()=>{ startAnalyser(fileTap); showNowPlaying(f.name); })
+    .catch(err=>setErr('toca de nuevo para reproducir · '+(err.name||'')));
+}
+
+function showNowPlaying(name){
+  let el=document.getElementById('nowPlaying');
+  if(!el){
+    el=document.createElement('div'); el.id='nowPlaying';
+    el.innerHTML='<div class="npTop"><button id="npPlay" title="play/pause">❚❚</button><span id="npName"></span><span id="npTime"></span></div><div id="npSeek"><i></i></div>';
+    document.body.appendChild(el);
+    document.getElementById('npPlay').onclick=()=>{ if(!fileAudio)return; if(fileAudio.paused)fileAudio.play(); else fileAudio.pause(); };
+    // seek arrastrable (ratón y táctil)
+    const seek=document.getElementById('npSeek'); let dragging=false;
+    const seekTo=ev=>{ if(!fileAudio||!fileAudio.duration)return; const r=seek.getBoundingClientRect(); fileAudio.currentTime=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width))*fileAudio.duration; updateSeek(); };
+    seek.addEventListener('pointerdown',ev=>{ dragging=true; seek.setPointerCapture(ev.pointerId); seekTo(ev); });
+    seek.addEventListener('pointermove',ev=>{ if(dragging) seekTo(ev); });
+    seek.addEventListener('pointerup',()=>{ dragging=false; });
+  }
+  el.style.display='';
+  document.getElementById('npName').textContent='♪ '+name;
+  document.getElementById('npPlay').textContent='❚❚';
+}
+function fmtTime(s){ if(!isFinite(s))return '–:––'; s=s|0; return (s/60|0)+':'+String(s%60).padStart(2,'0'); }
+function updateSeek(){
+  if(!fileAudio||!fileAudio.duration) return;
+  const fill=document.querySelector('#npSeek i'); if(fill) fill.style.width=(fileAudio.currentTime/fileAudio.duration*100)+'%';
+  const tt=document.getElementById('npTime'); if(tt) tt.textContent=fmtTime(fileAudio.currentTime)+' / '+fmtTime(fileAudio.duration);
+}
+
+// ===== DRAG & DROP audio anywhere =====
+let dropHint=null;
+function showDrop(on){
+  if(on){ if(!dropHint){ dropHint=document.createElement('div'); dropHint.textContent='suelta tu audio aquí';
+      dropHint.style.cssText='position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);font-family:var(--mono);font-size:clamp(18px,4vw,34px);letter-spacing:.1em;color:#fff;border:3px dashed rgba(255,255,255,.4);text-transform:lowercase;pointer-events:none;'; document.body.appendChild(dropHint);} dropHint.style.display='flex'; }
+  else if(dropHint){ dropHint.style.display='none'; }
+}
+['dragenter','dragover'].forEach(ev=>window.addEventListener(ev,e=>{ e.preventDefault(); showDrop(true); }));
+['dragleave','drop'].forEach(ev=>window.addEventListener(ev,e=>{ e.preventDefault(); if(ev==='drop'){ showDrop(false); const f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(f){ loadAudioFile(f); } } else if(e.clientX<=0||e.clientY<=0||e.clientX>=innerWidth||e.clientY>=innerHeight){ showDrop(false); } }));
+
+// ----- COLOR controls -----
+const presetRow=document.getElementById('presetRow');
+let activePreset=null;
+function markPreset(name){ activePreset=name; [...presetRow.children].forEach(x=>x.classList.toggle('active',x.dataset.name===name)); }
+Object.keys(PRESETS).forEach(name=>{
+  const b=document.createElement('div'); b.className='opt'; b.textContent=name.trim(); b.dataset.name=name;
+  b.onclick=()=>{ COLORMODE='fixed'; const pr=PRESETS[name]; fixedHues=pr.h.slice(); fixedSat=pr.s; document.getElementById('swRandColor').classList.remove('on'); document.getElementById('satRange').value=fixedSat; document.getElementById('satVal').textContent=fixedSat;
+    renderCustom(); jumpColors(); markPreset(name); };
+  presetRow.appendChild(b);
+});
+
+// full-spectrum strip (tap/drag to add a hue)
+const specCv=document.getElementById('spectrumStrip'), specCtx=specCv.getContext('2d');
+function drawSpectrum(){
+  const w=specCv.width,h=specCv.height;
+  for(let x=0;x<w;x++){ specCtx.fillStyle=`hsl(${x/w*360},90%,55%)`; specCtx.fillRect(x,0,1,h); }
+}
+drawSpectrum();
+function specPick(ev){
+  const r=specCv.getBoundingClientRect();
+  const cx=(ev.touches?ev.touches[0].clientX:ev.clientX)-r.left;
+  const hue=Math.max(0,Math.min(359,(cx/r.width)*360));
+  addHue(hue);
+}
+let specDown=false;
+specCv.addEventListener('pointerdown',e=>{ specDown=true; specPick(e); });
+specCv.addEventListener('pointermove',e=>{ if(specDown)specPick(e); });
+window.addEventListener('pointerup',()=>{ specDown=false; });
+
+function hexToHsl(hex){
+  const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;
+  const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn; let h=0;
+  if(d!==0){ if(mx===r)h=((g-b)/d)%6; else if(mx===g)h=(b-r)/d+2; else h=(r-g)/d+4; h*=60; if(h<0)h+=360; }
+  const l=(mx+mn)/2, s=d===0?0:d/(1-Math.abs(2*l-1));
+  return {h, s:Math.round(s*100), l:Math.round(l*100)};
+}
+let lastAddT=0;
+function addHue(h){
+  const now=performance.now(); if(now-lastAddT<60)return; lastAddT=now; // throttle dragging
+  if(fixedHues.length>=10) fixedHues.shift();
+  fixedHues.push(((h%360)+360)%360);
+  COLORMODE='fixed'; document.getElementById('swRandColor').classList.remove('on');
+  renderCustom(); jumpColors(); markPreset(null);
+}
+const customRowEl=document.getElementById('customRow');
+function renderCustom(){
+  customRowEl.innerHTML='';
+  fixedHues.forEach((h,idx)=>{
+    const sw=document.createElement('div'); sw.className='swatch sel'; sw.style.background=`hsl(${h},${fixedSat}%,55%)`;
+    sw.title='quitar'; sw.onclick=()=>{ if(fixedHues.length<=1)return; fixedHues.splice(idx,1); renderCustom(); if(COLORMODE==='fixed')jumpColors(); };
+    customRowEl.appendChild(sw);
+  });
+}
+document.getElementById('colorAdd').onclick=()=>{ const c=hexToHsl(document.getElementById('colorPick').value); fixedSat=Math.max(40,c.s); document.getElementById('satRange').value=fixedSat; document.getElementById('satVal').textContent=fixedSat; addHue(c.h); };
+document.getElementById('colorClear').onclick=()=>{ const c=hexToHsl(document.getElementById('colorPick').value); fixedHues=[c.h]; COLORMODE='fixed'; document.getElementById('swRandColor').classList.remove('on'); renderCustom(); jumpColors(); markPreset(null); };
+document.getElementById('satRange').oninput=function(){ fixedSat=+this.value; document.getElementById('satVal').textContent=this.value; renderCustom(); if(COLORMODE==='fixed')jumpColors(); };
+document.getElementById('swRandColor').onclick=function(){ this.classList.toggle('on'); COLORMODE=this.classList.contains('on')?'random':'fixed'; jumpColors(); if(COLORMODE==='random') markPreset(null); };
+renderCustom();
+
+// viz buttons
+const vizRow=document.getElementById('vizRow');
+VIZ.forEach((v,i)=>{ const b=document.createElement('div'); b.className='opt'+(i===0?' active':''); b.textContent=(i<10?((i+1)%10)+' · ':'')+v; b.onclick=()=>setViz(i); vizRow.appendChild(b); });
+function setViz(i){
+  vizIdx=i; document.getElementById('vizName').textContent=VIZ[i];
+  [...vizRow.children].forEach((x,j)=>x.classList.toggle('active',j===i));
+  updateContextSections();
+}
+function updateContextSections(){
+  document.getElementById('secStrobe').style.display = (vizIdx===4)?'block':'none';
+  document.getElementById('secScope').style.display = (vizIdx===0)?'block':'none';
+  document.getElementById('secRose').style.display = (vizIdx===1)?'block':'none';
+  document.getElementById('secXY').style.display = (vizIdx===12)?'block':'none';
+}
+document.getElementById('swKaleidoOn').onclick=function(){ this.classList.toggle('on'); KALEIDO_ON=this.classList.contains('on'); };
+
+// ----- combine modes (overlay) -----
+const overlayRow=document.getElementById('overlayRow');
+const offBtn=document.createElement('div'); offBtn.className='opt active'; offBtn.textContent='off';
+offBtn.onclick=()=>{ OVERLAY=-1; [...overlayRow.children].forEach(x=>x.classList.remove('active')); offBtn.classList.add('active'); };
+overlayRow.appendChild(offBtn);
+VIZ.forEach((v,i)=>{ const b=document.createElement('div'); b.className='opt'; b.textContent=v; b.onclick=()=>{ OVERLAY=i; [...overlayRow.children].forEach(x=>x.classList.remove('active')); b.classList.add('active'); }; overlayRow.appendChild(b); });
+document.getElementById('ovOp').oninput=function(){ OVERLAY_OP=+this.value; document.getElementById('ovOpVal').textContent=(+this.value).toFixed(2); };
+const ovBlendRow=document.getElementById('ovBlendRow');
+const OV_BLENDS=['lighter','screen','overlay','difference','source-over'];
+OV_BLENDS.forEach((bl,i)=>{ const b=document.createElement('div'); b.className='opt'+(i===0?' active':''); b.textContent=bl==='source-over'?'normal':bl; b.onclick=()=>{ OVERLAY_BLEND=bl; [...ovBlendRow.children].forEach(x=>x.classList.remove('active')); b.classList.add('active'); }; ovBlendRow.appendChild(b); });
+
+// ----- xy scope controls -----
+document.getElementById('xyHue').oninput=function(){ XY_HUE=+this.value; document.getElementById('xyHueVal').textContent=this.value; };
+document.getElementById('xyRatio').oninput=function(){ XY_RATIO=+this.value; document.getElementById('xyRatioVal').textContent=this.value; };
+document.getElementById('xyRatioY').oninput=function(){ XY_RATIO_Y=+this.value; document.getElementById('xyRatioYVal').textContent=this.value; };
+document.getElementById('xyRot').oninput=function(){ XY_ROT=+this.value; document.getElementById('xyRotVal').textContent=(+this.value).toFixed(2); };
+document.getElementById('xyShape').oninput=function(){ XY_SHAPE=+this.value; document.getElementById('xyShapeVal').textContent=(+this.value).toFixed(2); };
+document.getElementById('xyGlow').oninput=function(){ XY_GLOW=+this.value; document.getElementById('xyGlowVal').textContent=(+this.value).toFixed(2); };
+document.getElementById('xyGrid').onclick=function(){ this.classList.toggle('on'); XY_GRID=this.classList.contains('on'); };
+
+// ----- image import -----
+document.getElementById('imgImport').onclick=()=>document.getElementById('imgInput').click();
+document.getElementById('imgInput').onchange=function(e){
+  const f=e.target.files&&e.target.files[0]; this.value=''; if(!f) return;
+  const img=new Image(); img.onload=()=>{ userImg=img; toast('imagen cargada · úsala en "image vitral" o "rose window"'); }; img.onerror=()=>setErr('no se pudo cargar la imagen');
+  img.src=URL.createObjectURL(f);
+};
+document.getElementById('imgClear').onclick=()=>{ userImg=null; toast('imagen quitada'); };
+document.getElementById('swRoseImg').onclick=function(){ this.classList.toggle('on'); ROSE_USEIMG=this.classList.contains('on'); };
+
+// ----- particle scope controls -----
+const scopePathRow=document.getElementById('scopePathRow');
+SCOPE_PATH_NAMES.forEach((nm,i)=>{ const b=document.createElement('div'); b.className='opt'+(i===SCOPE_PATH?' active':''); b.textContent=nm; b.onclick=()=>{ SCOPE_PATH=i; [...scopePathRow.children].forEach(x=>x.classList.remove('active')); b.classList.add('active'); }; scopePathRow.appendChild(b); });
+document.getElementById('scLobes').oninput=function(){ SCOPE_LOBES=+this.value; document.getElementById('scLobesVal').textContent=this.value; };
+document.getElementById('scDen').oninput=function(){ SCOPE_DENSITY=+this.value; document.getElementById('scDenVal').textContent=this.value; };
+document.getElementById('scSpread').oninput=function(){ SCOPE_SPREAD=+this.value; document.getElementById('scSpreadVal').textContent=(+this.value).toFixed(2); };
+
+// ----- rose window controls -----
+document.getElementById('roPetals').oninput=function(){ ROSE_PETALS=+this.value; document.getElementById('roPetalsVal').textContent=this.value; };
+document.getElementById('roRings').oninput=function(){ ROSE_RINGS=+this.value; document.getElementById('roRingsVal').textContent=this.value; };
+document.getElementById('roSpin').oninput=function(){ ROSE_SPIN=+this.value; document.getElementById('roSpinVal').textContent=(+this.value).toFixed(1); };
+
+// seg buttons
+const segOpts=[1,2,4,6,8,12,16,32];
+const segRow=document.getElementById('segRow');
+segOpts.forEach(n=>{ const b=document.createElement('div'); b.className='opt'+(n===6?' active':''); b.textContent=n+'x'; b.onclick=()=>{ AUTOSEG=false; document.getElementById('swAuto').classList.remove('on'); SEGMENTS=n; document.getElementById('segVal').textContent=n; [...segRow.children].forEach(x=>x.classList.remove('active')); b.classList.add('active'); }; segRow.appendChild(b); });
+// toggles helper
+function tgl(id,obj,key,cb){ const el=document.getElementById(id); el.onclick=()=>{ el.classList.toggle('on'); const v=el.classList.contains('on'); if(obj)obj[key]=v; if(cb)cb(v); }; }
+tgl('swAuto',null,null,v=>{ AUTOSEG=v; });
+tgl('swMirror',null,null,v=>{ GRIDMIRROR=v; });
+tgl('swAgc',null,null,v=>{ AGC=v; });
+tgl('fxWhite',FX,'white'); tgl('fxInvert',FX,'invert'); tgl('fxBlack',FX,'black'); tgl('fxRgb',FX,'rgb'); tgl('fxShutter',FX,'shutter'); tgl('fxJump',FX,'jump'); tgl('fxReseed',FX,'reseed');
+// sliders
+const gridRange=document.getElementById('gridRange'); gridRange.oninput=()=>{ GRID=+gridRange.value; document.getElementById('gridVal').textContent=GRID; };
+const gainRange=document.getElementById('gainRange'); gainRange.oninput=()=>{ GAIN=+gainRange.value; document.getElementById('gainVal').textContent=GAIN.toFixed(1)+'×'; };
+const smRange=document.getElementById('smRange'); smRange.oninput=()=>{ SMOOTH=+smRange.value; document.getElementById('smVal').textContent=SMOOTH.toFixed(2); if(analyser)analyser.smoothingTimeConstant=SMOOTH; };
+const strRange=document.getElementById('strRange'); const strNames=['off','lo','hi','max']; strRange.oninput=()=>{ STROBE=+strRange.value; document.getElementById('strVal').textContent=strNames[STROBE]; };
+
+// ----- strobe shapes -----
+const ssShapeRow=document.getElementById('ssShapeRow');
+STROBE_SHAPE_NAMES.forEach((nm,i)=>{ const b=document.createElement('div'); b.className='opt'+(i===STROBE_SHAPE?' active':''); b.textContent=nm; b.onclick=()=>{ STROBE_SHAPE=i; [...ssShapeRow.children].forEach(x=>x.classList.remove('active')); b.classList.add('active'); }; ssShapeRow.appendChild(b); });
+const ssLayoutRow=document.getElementById('ssLayoutRow');
+STROBE_LAYOUT_NAMES.forEach((nm,i)=>{ const b=document.createElement('div'); b.className='opt'+(i===STROBE_LAYOUT?' active':''); b.textContent=nm; b.onclick=()=>{ STROBE_LAYOUT=i; [...ssLayoutRow.children].forEach(x=>x.classList.remove('active')); b.classList.add('active'); }; ssLayoutRow.appendChild(b); });
+document.getElementById('ssDenRange').oninput=function(){ STROBE_DENSITY=+this.value; document.getElementById('ssDenVal').textContent=this.value; };
+document.getElementById('ssSpinRange').oninput=function(){ STROBE_SPIN=+this.value; document.getElementById('ssSpinVal').textContent=(+this.value).toFixed(2); };
+document.getElementById('ssFill').onclick=function(){ this.classList.toggle('on'); STROBE_FILL=this.classList.contains('on'); };
+
+// ----- VHS -----
+document.getElementById('vhsOn').onclick=function(){ this.classList.toggle('on'); VHS.on=this.classList.contains('on'); };
+function bindVHS(id,key,el){ const s=document.getElementById(id); const lab=document.getElementById(el); s.oninput=()=>{ VHS[key]=+s.value; lab.textContent=(+s.value).toFixed(2); }; }
+bindVHS('vhsScan','scan','vhsScanVal'); bindVHS('vhsChroma','chroma','vhsChromaVal'); bindVHS('vhsBleed','bleed','vhsBleedVal');
+bindVHS('vhsNoise','noise','vhsNoiseVal'); bindVHS('vhsWobble','wobble','vhsWobbleVal'); bindVHS('vhsVig','vignette','vhsVigVal');
+
+document.getElementById('actShuffle').onclick=()=>randomizeAll(false);
+document.getElementById('actRandom').onclick=()=>randomizeAll(true);
+document.getElementById('fbRange').oninput=function(){ FEEDBACK=+this.value; document.getElementById('fbVal').textContent=FEEDBACK.toFixed(2); };
+document.getElementById('fbZoom').oninput=function(){ FEEDBACK_ZOOM=+this.value; document.getElementById('fbZoomVal').textContent=(+this.value).toFixed(2); };
+document.getElementById('fbRot').oninput=function(){ FEEDBACK_ROT=+this.value; document.getElementById('fbRotVal').textContent=(+this.value).toFixed(2); };
+document.getElementById('bloomRange').oninput=function(){ BLOOM=+this.value; document.getElementById('bloomVal').textContent=(+this.value).toFixed(2); };
+document.getElementById('gvigRange').oninput=function(){ GLOBAL_VIG=+this.value; document.getElementById('gvigVal').textContent=(+this.value).toFixed(2); gVigCanvas=null; };
+document.getElementById('wgRange').oninput=function(){ WHITE_GUARD=+this.value; document.getElementById('wgVal').textContent=(+this.value).toFixed(2); };
+document.getElementById('lockRange').oninput=function(){ PALETTE_LOCK=+this.value; document.getElementById('lockVal').textContent=(+this.value).toFixed(2); };
+function setAuto(on){ AUTO_ON=on; document.getElementById('swAutoVJ').classList.toggle('on',on); if(on){ autoLast=performance.now(); autoNewTargets(); } }
+document.getElementById('swAutoVJ').onclick=()=>setAuto(!AUTO_ON);
+document.getElementById('autoInt').oninput=function(){ AUTO_INTERVAL=+this.value; document.getElementById('autoIntVal').textContent=this.value+'s'; };
+document.getElementById('autoSm').oninput=function(){ AUTO_SMOOTH=+this.value; document.getElementById('autoSmVal').textContent=(+this.value).toFixed(3); };
+document.getElementById('swAutoMode').onclick=function(){ this.classList.toggle('on'); AUTO_CHANGEMODE=this.classList.contains('on'); };
+function rnd(a,b){ return a+Math.random()*(b-a); }
+function rndInt(a,b){ return a+((Math.random()*(b-a+1))|0); }
+function randomizeAll(includeMode){
+  jumpColors(); reseedFns();
+  // colores: a veces paleta fija de espectro, a veces random
+  if(Math.random()<0.5){ COLORMODE='fixed'; const base=Math.random()*360; if(Math.random()<0.6){ fixedHues=[base]; } else { fixedHues=[base, (base+(Math.random()<0.5?160+Math.random()*40:18+Math.random()*22))%360]; } fixedSat=rndInt(85,100); renderCustom(); jumpColors(); }
+  else { COLORMODE='random'; jumpColors(); }
+  markPreset(null);
+  // kaleido
+  KALEIDO_ON=Math.random()<0.6;
+  SEGMENTS=segOpts[rndInt(0,segOpts.length-1)]; AUTOSEG=false;
+  // grid
+  GRID=Math.random()<0.4? rndInt(2,8):1;
+  // strobe shapes
+  STROBE_SHAPE=rndInt(0,STROBE_SHAPE_NAMES.length-1); STROBE_LAYOUT=rndInt(0,STROBE_LAYOUT_NAMES.length-1); STROBE_DENSITY=rndInt(6,40); STROBE_SPIN=rnd(0,2);
+  // xy
+  XY_HUE=rndInt(0,360); XY_RATIO=rndInt(1,7); XY_RATIO_Y=rndInt(1,7); XY_SHAPE=rnd(0,1); XY_ROT=rnd(0,1.5); XY_GLOW=rnd(0.3,1);
+  // rose / scope
+  ROSE_PETALS=rndInt(8,28); ROSE_RINGS=rndInt(2,6); ROSE_SPIN=rnd(0,3);
+  SCOPE_PATH=rndInt(0,2); SCOPE_LOBES=rndInt(2,12); SCOPE_DENSITY=rndInt(2,6); SCOPE_SPREAD=rnd(0.1,0.7);
+  // feedback & bloom
+  FEEDBACK=Math.random()<0.55? rnd(0.3,0.85):0; FEEDBACK_ZOOM=rnd(-0.6,0.9); FEEDBACK_ROT=rnd(-1.2,1.2); FB_DIR=Math.random()<0.5?1:-1;
+  BLOOM=rnd(0.2,0.8);
+  // overlay (combinar modos) a veces
+  if(Math.random()<0.4){ OVERLAY=rndInt(0,VIZ.length-1); OVERLAY_OP=rnd(0.3,0.7); } else OVERLAY=-1;
+  // modo principal solo si se pide (R completo) — el shuffle suave no cambia de modo
+  if(includeMode) setViz(rndInt(0,VIZ.length-1));
+  syncPanelUI();
+}
+// refresca TODO el panel desde el estado (tras randomizar, auto-vj, cargar look o restaurar ajustes)
+function syncPanelUI(){
+  const set=(id,v)=>{ const e=document.getElementById(id); if(e)e.textContent=v; };
+  const sl=(id,v)=>{ const e=document.getElementById(id); if(e)e.value=v; };
+  const sw=(id,on)=>{ const e=document.getElementById(id); if(e)e.classList.toggle('on',!!on); };
+  const mark=(rowId,idx)=>{ const r=document.getElementById(rowId); if(r)[...r.children].forEach((x,i)=>x.classList.toggle('active',i===idx)); };
+  set('xyHueVal',Math.round(XY_HUE)); sl('xyHue',XY_HUE); set('xyRatioVal',Math.round(XY_RATIO)); sl('xyRatio',XY_RATIO);
+  set('xyRatioYVal',Math.round(XY_RATIO_Y)); sl('xyRatioY',XY_RATIO_Y); set('xyShapeVal',XY_SHAPE.toFixed(2)); sl('xyShape',XY_SHAPE);
+  set('xyRotVal',XY_ROT.toFixed(2)); sl('xyRot',XY_ROT); set('xyGlowVal',XY_GLOW.toFixed(2)); sl('xyGlow',XY_GLOW); sw('xyGrid',XY_GRID);
+  set('roPetalsVal',ROSE_PETALS); sl('roPetals',ROSE_PETALS); set('roRingsVal',ROSE_RINGS); sl('roRings',ROSE_RINGS); set('roSpinVal',ROSE_SPIN.toFixed(1)); sl('roSpin',ROSE_SPIN); sw('swRoseImg',ROSE_USEIMG);
+  set('ssDenVal',STROBE_DENSITY); sl('ssDenRange',STROBE_DENSITY); set('ssSpinVal',STROBE_SPIN.toFixed(2)); sl('ssSpinRange',STROBE_SPIN); sw('ssFill',STROBE_FILL);
+  set('scLobesVal',Math.round(SCOPE_LOBES)); sl('scLobes',SCOPE_LOBES); set('scDenVal',SCOPE_DENSITY); sl('scDen',SCOPE_DENSITY); set('scSpreadVal',SCOPE_SPREAD.toFixed(2)); sl('scSpread',SCOPE_SPREAD);
+  set('gridVal',GRID); sl('gridRange',GRID); sw('swMirror',GRIDMIRROR);
+  set('segVal',SEGMENTS+(AUTOSEG?' (auto)':'')); mark('segRow',segOpts.indexOf(SEGMENTS)); sw('swAuto',AUTOSEG); sw('swKaleidoOn',KALEIDO_ON);
+  set('fbVal',FEEDBACK.toFixed(2)); sl('fbRange',FEEDBACK); set('fbZoomVal',FEEDBACK_ZOOM.toFixed(2)); sl('fbZoom',FEEDBACK_ZOOM);
+  set('fbRotVal',FEEDBACK_ROT.toFixed(2)); sl('fbRot',FEEDBACK_ROT); set('bloomVal',BLOOM.toFixed(2)); sl('bloomRange',BLOOM);
+  set('gvigVal',GLOBAL_VIG.toFixed(2)); sl('gvigRange',GLOBAL_VIG); set('wgVal',WHITE_GUARD.toFixed(2)); sl('wgRange',WHITE_GUARD);
+  // visualizer / overlay
+  set('vizName',VIZ[vizIdx]); mark('vizRow',vizIdx); mark('overlayRow',OVERLAY+1); mark('ovBlendRow',OV_BLENDS.indexOf(OVERLAY_BLEND));
+  set('ovOpVal',OVERLAY_OP.toFixed(2)); sl('ovOp',OVERLAY_OP);
+  // color
+  sw('swRandColor',COLORMODE==='random'); set('satVal',Math.round(fixedSat)); sl('satRange',fixedSat);
+  set('lockVal',PALETTE_LOCK.toFixed(2)); sl('lockRange',PALETTE_LOCK); markPreset(activePreset);
+  // audio / strobe / fx / vhs
+  set('gainVal',GAIN.toFixed(1)+'×'); sl('gainRange',GAIN); sw('swAgc',AGC); set('smVal',SMOOTH.toFixed(2)); sl('smRange',SMOOTH);
+  set('strVal',strNames[STROBE]); sl('strRange',STROBE);
+  for(const k in FX) sw('fx'+k[0].toUpperCase()+k.slice(1),FX[k]);
+  sw('vhsOn',VHS.on);
+  [['vhsScan','scan'],['vhsChroma','chroma'],['vhsBleed','bleed'],['vhsNoise','noise'],['vhsWobble','wobble'],['vhsVig','vignette']].forEach(([id,k])=>{ sl(id,VHS[k]); set(id+'Val',VHS[k].toFixed(2)); });
+  // auto-vj / calidad
+  sw('swAutoVJ',AUTO_ON); sw('swAutoMode',AUTO_CHANGEMODE); set('autoIntVal',AUTO_INTERVAL+'s'); sl('autoInt',AUTO_INTERVAL);
+  set('autoSmVal',AUTO_SMOOTH.toFixed(3)); sl('autoSm',AUTO_SMOOTH);
+  mark('ssShapeRow',STROBE_SHAPE); mark('ssLayoutRow',STROBE_LAYOUT); mark('scopePathRow',SCOPE_PATH);
+  mark('qualRow',QUALITY_OPTS.indexOf(QUALITY)); set('qualVal',QUALITY==='auto'?'auto · '+Math.round(autoScale*100)+'%':QUALITY);
+}
+document.getElementById('actShot').onclick=saveImage;
+function saveImage(){
+  try{
+    const out=document.createElement('canvas'); out.width=W; out.height=H;
+    const o=out.getContext('2d');
+    o.fillStyle='#000'; o.fillRect(0,0,W,H);
+    o.drawImage(cv,0,0);                       // main visual
+    // draw scope box in its corner (bottom-right, matching CSS ~280x110 @ 18px margin)
+    const pad=18*DPR, sw=sc.width, sh=sc.height, sx=W-sw-pad, sy=H-sh-pad;
+    o.save();
+    o.fillStyle='rgba(0,0,0,0.4)'; o.fillRect(sx,sy,sw,sh);
+    o.drawImage(sc,sx,sy);
+    o.strokeStyle='rgba(255,255,255,0.18)'; o.lineWidth=1*DPR; o.strokeRect(sx,sy,sw,sh);
+    o.restore();
+    // watermark / logo
+    o.font=`${13*DPR}px 'JetBrains Mono', monospace`;
+    o.fillStyle='rgba(255,255,255,0.85)'; o.textBaseline='top';
+    o.fillText('supvisions', pad, pad);
+    if(bpm){ o.font=`${11*DPR}px 'JetBrains Mono', monospace`; o.fillStyle='rgba(255,255,255,0.5)';
+      o.fillText(bpm+' bpm  ·  '+VIZ[vizIdx], pad, pad+18*DPR); }
+
+    const stamp=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+    const name='supvisions_'+stamp+'.png';
+    out.toBlob(b=>{
+      const url=URL.createObjectURL(b);
+      const a=document.createElement('a'); a.href=url; a.download=name;
+      document.body.appendChild(a); a.click(); a.remove();
+      // iOS fallback: also open so user can long-press > save
+      if(isIOS) window.open(url,'_blank');
+      setTimeout(()=>URL.revokeObjectURL(url),4000);
+      flashShot();
+    },'image/png');
+  }catch(e){ setErr('no se pudo guardar · '+(e.message||e)); }
+}
+// quick white-frame feedback when capturing
+let shotFlash=0; function flashShot(){ shotFlash=1; }
+document.getElementById('actSrc').onclick=()=>{ setPanel(false); showGate(true); };
+function toggleFull(){
+  const d=document, el=d.documentElement;
+  try{
+    if(!(d.fullscreenElement||d.webkitFullscreenElement)){ const req=el.requestFullscreen||el.webkitRequestFullscreen; if(req) req.call(el); else toast('pantalla completa no disponible aquí · en iphone: compartir → añadir a inicio'); }
+    else (d.exitFullscreen||d.webkitExitFullscreen).call(d);
+  }catch(e){}
+}
+document.getElementById('actFull').onclick=toggleFull;
+document.getElementById('actClean').onclick=()=>{ setPanel(false); document.body.classList.add('clean'); toast('hud oculto · pulsa h para mostrarlo'); };
+const helpEl=document.getElementById('help');
+function showHelp(on){ helpEl.classList.toggle('show', on==null? !helpEl.classList.contains('show') : on); }
+helpEl.onclick=()=>showHelp(false);
+document.getElementById('actHelp').onclick=()=>showHelp(true);
+document.getElementById('actReset').onclick=()=>{ setState(DEFAULTS); applyState(); toast('ajustes restaurados'); };
+
+addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  const k=e.key, tg=e.target, tag=tg&&tg.tagName;
+  // los sliders con foco se quedan las flechas; el resto de atajos sigue funcionando
+  if((tag==='TEXTAREA'||(tag==='INPUT'&&tg.type!=='range')) && k!=='Escape') return;
+  if(tag==='INPUT'&&tg.type==='range'&&/^Arrow/.test(k)) return;
+  if(k==='Escape'){ setPanel(false); showHelp(false); if(running) showGate(false); return; }
+  if(gateVisible()) return;
+  if(e.shiftKey && /^Digit[1-4]$/.test(e.code)){ recallLook(+e.code.slice(5)-1); return; }
+  if(/^[0-9]$/.test(k)){ const i=k==='0'?9:+k-1; if(i<VIZ.length) setViz(i); return; }
+  switch(k){
+    case 'ArrowRight': setViz((vizIdx+1)%VIZ.length); break;
+    case 'ArrowLeft':  setViz((vizIdx-1+VIZ.length)%VIZ.length); break;
+    case 'f': case 'F': toggleFull(); break;
+    case ' ': e.preventDefault(); jumpColors(); reseedFns(); break;
+    case 's': case 'S': saveImage(); break;
+    case 'r': randomizeAll(false); break;
+    case 'R': randomizeAll(true); break;
+    case 'a': case 'A': setAuto(!AUTO_ON); toast('auto-vj '+(AUTO_ON?'on':'off')); break;
+    case 'k': case 'K': KALEIDO_ON=!KALEIDO_ON; syncPanelUI(); toast('kaleidoscope '+(KALEIDO_ON?'on':'off')); break;
+    case 'v': case 'V': VHS.on=!VHS.on; syncPanelUI(); toast('vhs '+(VHS.on?'on':'off')); break;
+    case 'c': case 'C': setPanel(!panel.classList.contains('open')); break;
+    case 'h': case 'H': document.body.classList.toggle('clean'); break;
+    case '?': case 'i': case 'I': showHelp(); break;
+  }
+});
+
+// ===== ANALYSIS =====
+// Espectro por bin (los modos que dibujan el espectro): nivel RELATIVO al pico reciente, con ~40 dB de
+// rango visible. Antes se multiplicaban los bytes (que ya vienen en dB) por una ganancia: el ruido de fondo
+// salía a medio gas y los picos saturados, así que todo el espectro vivía entre 0.3 y 0.6 y casi no se movía.
+let specCeil=200; const SPEC_RANGE=120;   // 3 bytes por dB con -95..-10 → 120 bytes ≈ 40 dB
+function gv(i){ const v=(freq[i]-(specCeil-SPEC_RANGE))/SPEC_RANGE; return v<=0?0:Math.min(255,v*255*GAIN); }
+function bandAvg(a,b){ let s=0; for(let i=a;i<b;i++)s+=gv(i); return (s/(b-a))/255; }
+function updateSpecCeil(dt){
+  if(!AGC){ specCeil=200; return; }        // fijo ≈ -28 dB
+  let p=0; for(let i=1;i<400;i++) if(freq[i]>p)p=freq[i];
+  specCeil += p>specCeil ? (p-specCeil)*0.5 : (p-specCeil)*(1-Math.exp(-dt/8));
+  if(specCeil<90) specCeil=90;               // ≈ -65 dB: el silencio no se amplifica
+}
+const NOTES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function spectralCentroid(){ let num=0,den=0; for(let i=2;i<512;i++){ const mg=gv(i); num+=i*mg; den+=mg; } if(den<1)return{norm:0,note:'—'}; const bin=num/den, hz=bin*sampleRate/FFT; const note=hz>20?NOTES[((Math.round(12*Math.log2(hz/440)+69))%12+12)%12]:'—'; return {norm:Math.min(bin/400,1),hz,note}; }
+
+// ----- BANDAS en Hz reales (antes eran índices de bin pensados para 44.1 kHz) -----
+// sub = bombo/sub-bajo · low = bajo · mid = voces/synths · hi = hats/platos
+const BANDS_HZ=[[30,90],[90,300],[300,2500],[2500,12000]];
+const BAND_HN=240;   // historial de 8 s a 30 Hz por banda
+const band=BANDS_HZ.map(()=>({db:-90,floor:-75,ceil:-35,env:0,hist:new Float32Array(BAND_HN).fill(-140),hp:0,hacc:0}));
+const bandLv=[0,0,0,0];
+let bassDb=-90, bandSortT=0;
+function binOf(hz){ return Math.round(hz/(sampleRate/beatAn.fftSize)); }
+function dbAvg(lo,hi){ const a=Math.max(1,binOf(lo)), b=Math.min(beatF.length-1,Math.max(a,binOf(hi))); let p=0;
+  for(let i=a;i<=b;i++){ const d=beatF[i]; if(d>-140) p+=Math.pow(10,d/10); }
+  p/=(b-a+1); return p>1e-14? 10*Math.log10(p) : -140; }
+// auto-nivel por banda: cada banda se mide contra SU PROPIA música de los últimos 8 s
+// (suelo = percentil 20, techo = percentil 98). Un tema muy masterizado solo varía 6–10 dB por banda;
+// medido contra un rango fijo se quedaba siempre "a medias". Así el bombo llega a 1 y entre golpes cae a ~0
+function updateBands(dt){
+  const att=1-Math.exp(-dt/0.012), rel=1-Math.exp(-dt/(0.03+SMOOTH*0.2));
+  let pBass=0;
+  bandSortT+=dt; const resort=AGC && bandSortT>0.25; if(resort) bandSortT=0;
+  for(let k=0;k<4;k++){ const B=band[k], d=dbAvg(BANDS_HZ[k][0],BANDS_HZ[k][1]); B.db=d;
+    if(k<2) pBass+=Math.pow(10,d/10);
+    B.hacc+=dt; if(B.hacc>=1/30){ B.hacc=0; B.hist[B.hp]=d; B.hp=(B.hp+1)%BAND_HN; }
+    if(resort){ const s=B.hist.filter(v=>v>-139).sort(); if(s.length>15){ B.floor=s[(s.length*0.2)|0]; B.ceil=s[(s.length*0.98)|0]; } }
+    let lo,hi;
+    if(AGC){ hi=Math.max(B.ceil,-70); lo=Math.min(B.floor,hi-10); }   // mínimo 10 dB: el silencio no se amplifica
+    else { hi=-25; lo=-75; }
+    let v=(d-lo)/(hi-lo); v=v<0?0:v>1?1:v; v=Math.pow(v,1.8);          // curva: el golpe destaca sobre el colchón
+    B.env += (v-B.env)*(v>B.env?att:rel);
+    bandLv[k]=Math.min(1,B.env*GAIN);
+  }
+  bassDb=pBass>1e-14? 10*Math.log10(pBass) : -140;
+}
+
+// ----- SECCIONES: groove / break / drop -----
+// break = el bombo desaparece >1.5 s: o cae el grave (últimos 0.4 s frente a su media larga, que se
+// congela durante el break) o, con el tempo ya enganchado, dejan de llegar bombos que confirmen los beats.
+// Cuando el bombo vuelve tras >3 s de break, es un DROP
+let section='groove', secT=0, bassS=-90, bassL=-90, calm=0, dropFx=0, lastDropT=-9;
+function updateSection(now,dt){
+  if(bassL<-100){ bassS=bassL=bassDb; }
+  bassS+=(bassDb-bassS)*(1-Math.exp(-dt/0.4));
+  if(section!=='break') bassL+=(bassDb-bassL)*(1-Math.exp(-dt/12));
+  const rel=bassS-bassL, noKick=rel<-7 || (period>0 && beatConf<0.3);
+  if(section!=='break'){
+    if(noKick && bassL>-80){ if(!secT) secT=now; else if(now-secT>1.5){ section='break'; secT=now; } } else secT=0;
+  } else if(rel>-3 && (!period || beatConf>0.5)){ const long=now-secT>3; section='groove'; secT=0; if(long) onDrop(now); }
+  calm+=((section==='break'?1:0)-calm)*(1-Math.exp(-dt/0.6));
+}
+
+// ----- BEAT TRACKER -----
+// 1) onset del bombo: "spectral flux" en 40–150 Hz (suma de subidas en dB entre frames)
+// 2) tempo: autocorrelación de los onsets del bombo de los últimos 8 s, medidos sobre la onda cada 10 ms
+//    (como hacen los programas de DJ), con preferencia suave por ~128 BPM. Antes se medía el tiempo entre
+//    golpes sueltos y el bajo en corcheas lo confundía (con un house a 127 marcaba 169)
+// 3) fase: los beats se PREDICEN y salen a tiempo aunque falte un bombo; cada onset cercano corrige la
+//    fase. Sin onsets que confirmen (break) la confianza cae y los flashes se apagan solos
+const ODF_HZ=100, ODF_N=800, TMIN=92, TMAX=184;
+const TEMPO_MIN_S=4;   // segundos de música antes de estimar el tempo (con 3 a veces enganchaba mal)
+let odfBuf=new Float32Array(ODF_N), odfPos=0, odfFill=0, prevKick=null, fluxWin=[], tempoEst=[];
+let bpm=0, period=0, nextBeatT=0, lastBeatT=0, beatConf=0, beatCount=-1, lastOnsetT=0, lastTempoT=0, tempoVotes=0, tempoCand=0;
+let flash=0, invert=0, whiteFlash=0, blackout=0, rgbShift=0, downbeat=0, lastFullFlash=0;
+function resetAnalysis(){
+  odfBuf.fill(0); odfPos=0; odfFill=0; prevKick=null; lastCtxT=0; hopAcc=0; if(kb) kb.prev.fill(-100); fluxWin=[]; bpm=0; period=0; beatConf=0; beatCount=-1;
+  lastTempoT=0; lastOnsetT=0; nextBeatT=0; lastBeatT=0;
+  tempoVotes=0; tempoCand=0; section='groove'; secT=0; bassL=bassS=-140; calm=0; specCeil=200;
+  band.forEach(B=>{ B.floor=-75; B.ceil=-35; B.env=0; B.hist.fill(-140); B.hp=0; }); tempoEst=[];
+  const el=document.getElementById('bpm'); if(el) el.firstChild.textContent='— ';
+}
+// curva de ritmo para el TEMPO a 100 Hz fijos, calculada sobre la onda (no por frame): cada 10 ms una DFT
+// de 2048 muestras SOLO en los bins de 40–150 Hz y la suma de sus subidas en dB ("spectral flux").
+// Por bins distingue el bombo (sube en todos a la vez) de una nota de bajo (sube en uno). Sin depender
+// de los fps: con el espectro por frame, a 30 fps el tempo se enganchaba a veces a 3/4 (95 en vez de 127)
+let tdAn=null, tdBuf=null, lastCtxT=0, hopAcc=0, kb=null;
+function audioClock(){ return audioCtx.currentTime; }
+function pushOdf(v){ odfBuf[odfPos]=v; odfPos=(odfPos+1)%ODF_N; odfFill++; }
+function initKickDft(){
+  const N=2048, k0=Math.max(1,Math.round(40*N/sampleRate)), k1=Math.max(k0+1,Math.round(150*N/sampleRate));
+  kb={N,sr:sampleRate,c:[],s:[],prev:new Float32Array(k1-k0+1).fill(-100)};
+  for(let k=k0;k<=k1;k++){ const c=new Float32Array(N), s=new Float32Array(N);
+    for(let n=0;n<N;n++){ const w=0.42-0.5*Math.cos(2*Math.PI*n/N)+0.08*Math.cos(4*Math.PI*n/N); c[n]=w*Math.cos(2*Math.PI*k*n/N); s[n]=w*Math.sin(2*Math.PI*k*n/N); }
+    kb.c.push(c); kb.s.push(s); }
+}
+function kickFluxAt(buf,end){
+  let f=0; const N=kb.N, o=end-N;
+  for(let j=0;j<kb.c.length;j++){ const c=kb.c[j], s=kb.s[j]; let re=0, im=0;
+    for(let n=0;n<N;n++){ const x=buf[o+n]; re+=x*c[n]; im+=x*s[n]; }
+    const db=Math.max(-100,20*Math.log10(Math.hypot(re,im)/N+1e-12)); if(db>kb.prev[j]) f+=db-kb.prev[j]; kb.prev[j]=db; }
+  return f/kb.c.length;
+}
+function feedOdf(){
+  if(!kb||kb.sr!==sampleRate) initKickDft();
+  if(!tdBuf||tdBuf.length!==tdAn.fftSize) tdBuf=new Float32Array(tdAn.fftSize);
+  const ct=audioClock(); let nNew=lastCtxT? Math.round((ct-lastCtxT)*sampleRate) : 0; lastCtxT=ct;
+  if(nNew<=0) return;
+  const L=tdBuf.length, hop=Math.round(sampleRate/ODF_HZ);
+  if(nNew>L-kb.N){ const lost=nNew-(L-kb.N); for(let g=Math.floor(lost/hop);g>0;g--) pushOdf(0); nNew=L-kb.N; }   // fps muy bajos: hueco
+  tdAn.getFloatTimeDomainData(tdBuf);
+  for(let i=L-nNew;i<L;i++){ if(++hopAcc>=hop){ hopAcc=0; pushOdf(kickFluxAt(tdBuf,i+1)); } }
+}
+function kickFlux(){
+  const a=Math.max(1,binOf(40)), b=Math.max(a+1,binOf(150));
+  if(!prevKick||prevKick.length!==b+1){ prevKick=new Float32Array(b+1).fill(-100); }
+  let f=0; for(let i=a;i<=b;i++){ const d=Math.max(-100,beatF[i]); if(d>prevKick[i]) f+=d-prevKick[i]; prevKick[i]=d; }
+  return f/(b-a+1);
+}
+function estimateTempo(){
+  // autocorrelación de los últimos ≤8 s de onsets (100 Hz), lags de 92 a 184 BPM a pasos de 0.5.
+  // Con menos de 3 s de música no se estima: con el buffer medio vacío salían tempos falsos (100 en vez de 127)
+  const n=Math.min(ODF_N,odfFill); if(n<TEMPO_MIN_S*ODF_HZ) return null;
+  const x=new Float32Array(n); let m=0;
+  for(let i=0;i<n;i++){ x[i]=odfBuf[(odfPos-n+i+ODF_N)%ODF_N]; m+=x[i]; } m/=n;
+  for(let i=0;i<n;i++) x[i]=Math.max(0,x[i]-m);
+  const ac=lag=>{ const l=Math.floor(lag), f=lag-l; let s=0, c=0; for(let i=0;i+l+1<n;i++,c++) s+=x[i]*(x[i+l]*(1-f)+x[i+l+1]*f); return c? s/c : 0; };
+  const score=b=>{ const lag=ODF_HZ*60/b, prior=Math.exp(-0.5*Math.pow(Math.log2(b/128)/0.5,2));   // preferencia suave por 128
+    return (ac(lag)+0.5*ac(lag*2))*(0.6+0.4*prior); };
+  const sc=[]; let bi=0;
+  for(let b=TMIN;b<=TMAX;b+=0.5){ sc.push(score(b)); if(sc[sc.length-1]>sc[bi]) bi=sc.length-1; }
+  if(!(sc[bi]>0)) return null;
+  // interpolación parabólica: precisión de décimas de BPM aunque la rejilla sea de 0.5
+  let off=0; if(bi>0&&bi<sc.length-1){ const a=sc[bi-1], c=sc[bi+1], den=a-2*sc[bi]+c; if(den<0) off=0.5*(a-c)/den; }
+  // cur = cuánto aparece todavía el tempo actual en el ritmo, relativo al mejor
+  return { est:TMIN+(bi+off)*0.5, cur: bpm? score(bpm)/sc[bi] : 0 };
+}
+function trackBeat(now,dt){
+  const f=kickFlux();      // onsets por frame: para la FASE (cuándo cae cada golpe)
+  feedOdf();               // curva a 100 Hz fijos: para el TEMPO
+  // umbral adaptativo: media + 1.5·desviación del último 1.5 s
+  fluxWin.push({t:now,f}); while(fluxWin.length && now-fluxWin[0].t>1.5) fluxWin.shift();
+  let m=0; for(const o of fluxWin) m+=o.f; m/=fluxWin.length;
+  let v=0; for(const o of fluxWin) v+=(o.f-m)*(o.f-m); const sd=Math.sqrt(v/fluxWin.length);
+  // sin tempo todavía se exige más (el bajo en corcheas también da onsets en 40–150 Hz)
+  const thr=Math.max(m+(period?1.5:2)*sd,1.2);
+  const onset = f>thr && now-lastOnsetT>(period? period*0.45 : 0.3);
+  const str = onset? Math.min(1,0.45+(f-thr)/(thr+1e-6)) : 0;
+  if(onset) lastOnsetT=now;
+
+  // tempo cada 0.5 s: mediana de las 6 últimas lecturas; se engancha cuando 4 de 6 coinciden (±2.5 BPM)
+  if(now-lastTempoT>0.5){ lastTempoT=now; const T=estimateTempo();
+    if(T){ const est=T.est; tempoEst.push(est); if(tempoEst.length>6) tempoEst.shift();
+      const s=[...tempoEst].sort((a,b)=>a-b), med=s[s.length>>1], agree=tempoEst.filter(x=>Math.abs(x-med)<2.5).length;
+      if(!bpm){ if(agree>=4){ bpm=med; period=60/bpm; lastBeatT=lastOnsetT; nextBeatT=lastOnsetT+period; beatConf=0.3; } }
+      // con los bombos confirmando, el ajuste fino lo hace la fase (abajo); la autocorrelación solo corrige en grueso
+      else if(Math.abs(est-bpm)<3){ if(beatConf<0.6){ bpm+=(est-bpm)*0.15; period=60/bpm; } tempoVotes=0; }
+      // otro tempo: solo si el actual casi ha desaparecido del ritmo (<75% del mejor) y el nuevo se mantiene
+      // 4–6 s seguidos. Un break con otro patrón no cambia el tempo del tema; un enganche falso o una canción nueva sí.
+      // (no basta con mirar si los bombos "confirman": con bajo en corcheas un tempo de 3/4 también se confirma)
+      else if(T.cur<0.75 && Math.abs(est-tempoCand)<2.5){ if(++tempoVotes>=(beatConf<0.5?8:12)){ bpm=est; period=60/bpm; beatConf=0.3; tempoVotes=0; } }
+      else { tempoCand=est; tempoVotes=T.cur<0.75?1:0; }
+      if(bpm) document.getElementById('bpm').firstChild.textContent=Math.round(bpm)+' '; } }
+
+  if(!period){ if(onset) emitBeat(str,now); return; }      // calentando: beat = onset, como antes
+  // vuelta de pestaña oculta: realinear sin disparar una ráfaga de beats atrasados
+  if(now-nextBeatT>period){ nextBeatT+=Math.ceil((now-nextBeatT)/period)*period; lastBeatT=nextBeatT-period; }
+  if(now>=nextBeatT){ lastBeatT=nextBeatT; nextBeatT+=period; beatConf*=0.85; emitBeat(beatConf,now); }
+  if(onset){
+    const late=now-lastBeatT, early=nextBeatT-now;
+    // PLL: corrige fase (35%) y también el periodo (4%), así el BPM converge al real con décimas
+    const tunePeriod=e=>{ period=Math.min(60/TMIN,Math.max(60/TMAX,period+e*0.04)); bpm=60/period; };
+    if(late<period*0.2){ lastBeatT+=late*0.35; tunePeriod(late); nextBeatT=lastBeatT+period; beatConf=Math.min(1,beatConf+0.3); flash=Math.max(flash,(0.35+0.65*str)*(1-calm*0.6)); }
+    else if(early<period*0.15){ tunePeriod(-early); lastBeatT=nextBeatT-early*0.35; nextBeatT=lastBeatT+period; beatConf=Math.min(1,beatConf+0.3); emitBeat(Math.max(beatConf,str),now); }
+    else if(beatConf<0.3 && str>0.7){ lastBeatT=now; nextBeatT=now+period; beatConf=0.4; emitBeat(str,now); }   // fase perdida: re-enganchar
+  }
+}
+// límite de fotosensibilidad: como mucho 3 destellos de pantalla completa por segundo
+function fullFlashOK(now){ if(now-lastFullFlash<0.34) return false; lastFullFlash=now; return true; }
+function emitBeat(str,now){
+  beatCount++;
+  const bar=beatCount%4===0, half=beatCount%8===0, phrase=beatCount%16===0;
+  const k=1-calm*0.6;                                       // en el break todo pega más suave
+  flash=Math.max(flash,(0.35+0.65*str)*k);
+  if(str<0.15) return;                                      // beat sin confirmar: solo un pulso leve
+  if(bar) downbeat=1;
+  // cambios de color por FRASES musicales, no en cada golpe (antes: paleta nueva 2 veces por segundo)
+  const jumpEvery = STROBE>=3? 4 : STROBE===2? 8 : 16;
+  if(STROBE>=1 && FX.jump && beatCount%jumpEvery===0) jumpColors();
+  if(calm<0.5){
+    if(STROBE>=2 && FX.rgb && Math.random()<0.45) rgbShift=1;
+    if(bar && STROBE>=2 && FX.invert && Math.random()<0.5 && fullFlashOK(now)) invert=1;
+    if(bar && STROBE>=2 && FX.black && Math.random()<0.25) blackout=1;
+    if(phrase && STROBE===3 && FX.white && fullFlashOK(now)) whiteFlash=0.7;
+    if(half && STROBE>=2 && FX.reseed) reseedFns();
+  }
+  if(bar && AUTOSEG){ const kk=bandAvg(40,260); SEGMENTS=segOpts[Math.min(segOpts.length-1, 1+(kk*7)|0)]; document.getElementById('segVal').textContent=SEGMENTS+' (auto)'; }
+  // auto-vj: cambia de escena al empezar una frase (cada 8 beats), no a mitad de compás
+  if(AUTO_ON && half && beatConf>0.3 && performance.now()-autoLast>AUTO_INTERVAL*750){ autoLast=performance.now(); autoNewTargets(); }
+}
+function onDrop(now){
+  if(now-lastDropT<8) return; lastDropT=now;
+  beatCount=0; flash=1; downbeat=1; dropFx=1;
+  if(STROBE>=1){ jumpColors(); reseedFns(); }
+  if(STROBE>=2 && FX.white && fullFlashOK(now)) whiteFlash=0.8;
+  if(AUTO_ON){ autoLast=performance.now(); autoNewTargets(); }
+}
+
+// math params
+let fp={};
+function reseedFns(){ fp={ a:1+Math.random()*5,b:1+Math.random()*5,c:1+Math.random()*5,d:1+Math.random()*5, p1:Math.random()*6.28,p2:Math.random()*6.28, shape:(Math.random()*3)|0, style:(Math.random()*5)|0, spin:(Math.random()-0.5)*0.02, density:120+((Math.random()*220)|0) }; }
+reseedFns();
+// starfield
+const stars=[]; for(let i=0;i<260;i++)stars.push({x:Math.random()*2-1,y:Math.random()*2-1,z:Math.random()}); 
+// laser sources
+let time=0, rot=0;
+
+// ===== AUTO-VJ engine =====
+let AUTO_ON=false, AUTO_INTERVAL=8, autoLast=0, AUTO_SMOOTH=0.04, AUTO_CHANGEMODE=true, modeFade=0;
+// targets para parámetros continuos (se interpolan suavemente)
+const autoT={ XY_RATIO:1, XY_RATIO_Y:1, XY_SHAPE:0.5, XY_ROT:0.4, XY_GLOW:0.6, XY_HUE:140,
+  ROSE_SPIN:1, SCOPE_LOBES:5, SCOPE_SPREAD:0.4, OVERLAY_OP:0.5, fixedSat:90, STROBE_SPIN:0.6,
+  FEEDBACK:0, FEEDBACK_ZOOM:0.5, FEEDBACK_ROT:0.5, BLOOM:0.5 };
+function autoNewTargets(){
+  // crossfade visual al cambiar combinación
+  modeFade=1;
+  if(AUTO_CHANGEMODE && Math.random()<0.7){ setViz(rndInt(0,VIZ.length-1)); }
+  if(Math.random()<0.5){ jumpColors(); }
+  if(Math.random()<0.4){ reseedFns(); }
+  if(Math.random()<0.5){ KALEIDO_ON=!KALEIDO_ON; }
+  if(Math.random()<0.4){ SEGMENTS=[2,4,6,8,12,16][rndInt(0,5)]; }
+  if(Math.random()<0.35){ OVERLAY=Math.random()<0.6? rndInt(0,VIZ.length-1):-1; }
+  if(Math.random()<0.3){ GRID=Math.random()<0.5? rndInt(2,6):1; }
+  STROBE_SHAPE=rndInt(0,STROBE_SHAPE_NAMES.length-1); STROBE_LAYOUT=rndInt(0,STROBE_LAYOUT_NAMES.length-1);
+  SCOPE_PATH=rndInt(0,2); ROSE_PETALS=rndInt(10,24); ROSE_RINGS=rndInt(3,6);
+  // targets continuos
+  autoT.XY_RATIO=rndInt(1,7); autoT.XY_RATIO_Y=rndInt(1,7); autoT.XY_SHAPE=rnd(0.1,1); autoT.XY_ROT=rnd(0,1.4); autoT.XY_GLOW=rnd(0.4,1); autoT.XY_HUE=rndInt(0,360);
+  autoT.ROSE_SPIN=rnd(0.2,3); autoT.SCOPE_LOBES=rndInt(2,12); autoT.SCOPE_SPREAD=rnd(0.1,0.7); autoT.OVERLAY_OP=rnd(0.3,0.7); autoT.STROBE_SPIN=rnd(0,2);
+  autoT.fixedSat=rndInt(70,100);
+  autoT.FEEDBACK=Math.random()<0.55?rnd(0.3,0.85):0; autoT.FEEDBACK_ZOOM=rnd(-0.6,0.9); autoT.FEEDBACK_ROT=rnd(-1.2,1.2); FB_DIR=Math.random()<0.5?1:-1; autoT.BLOOM=rnd(0.2,0.8);
+  syncPanelUI();
+}
+function lerp(a,b,k){ return a+(b-a)*k; }
+function autoLerp(){
+  const k=1-Math.pow(1-AUTO_SMOOTH,FS);   // igual de suave a 30 que a 120 fps
+  XY_RATIO=lerp(XY_RATIO,autoT.XY_RATIO,k); XY_RATIO_Y=lerp(XY_RATIO_Y,autoT.XY_RATIO_Y,k);
+  XY_SHAPE=lerp(XY_SHAPE,autoT.XY_SHAPE,k); XY_ROT=lerp(XY_ROT,autoT.XY_ROT,k); XY_GLOW=lerp(XY_GLOW,autoT.XY_GLOW,k);
+  XY_HUE=lerp(XY_HUE,autoT.XY_HUE,k);
+  ROSE_SPIN=lerp(ROSE_SPIN,autoT.ROSE_SPIN,k); SCOPE_LOBES=lerp(SCOPE_LOBES,autoT.SCOPE_LOBES,k);
+  SCOPE_SPREAD=lerp(SCOPE_SPREAD,autoT.SCOPE_SPREAD,k); OVERLAY_OP=lerp(OVERLAY_OP,autoT.OVERLAY_OP,k);
+  STROBE_SPIN=lerp(STROBE_SPIN,autoT.STROBE_SPIN,k);
+  FEEDBACK=lerp(FEEDBACK,autoT.FEEDBACK,k); FEEDBACK_ZOOM=lerp(FEEDBACK_ZOOM,autoT.FEEDBACK_ZOOM,k); FEEDBACK_ROT=lerp(FEEDBACK_ROT,autoT.FEEDBACK_ROT,k); BLOOM=lerp(BLOOM,autoT.BLOOM,k);
+  fixedSat=lerp(fixedSat,autoT.fixedSat,k);
+}
+
+// fps + calidad automática: si cae de ~40 fps durante 2 s Y el frame tarda de verdad en dibujarse,
+// baja la resolución un 25% (mínimo 50%). Mirar solo los fps falla con pestañas en segundo plano o
+// el modo ahorro de batería de iOS, que limitan a 30 fps aunque el equipo vaya sobrado.
+let fps=0, fpsAcc=0, fpsN=0, workAcc=0, lastFrameT=0, slowSecs=0, frameN=0;
+function trackFps(t){
+  const dt=t-lastFrameT; lastFrameT=t;
+  if(dt<=0||dt>500) return;
+  fpsAcc+=dt; fpsN++;
+  if(fpsAcc<1000) return;
+  fps=Math.round(1000*fpsN/fpsAcc); const work=workAcc/fpsN; fpsAcc=0; fpsN=0; workAcc=0;
+  document.getElementById('fpsTxt').textContent=fps+' fps · '+work.toFixed(1)+' ms/frame';
+  if(QUALITY==='auto'){
+    if(fps<40 && work>12 && autoScale>0.5){ if(++slowSecs>=2){ autoScale=Math.max(0.5,autoScale-0.25); slowSecs=0; resize(); syncPanelUI(); } }
+    else slowSecs=0;
+  }
+}
+
+// FS = duración del frame en "frames de 60 fps": todas las caídas y giros van por tiempo, no por frame
+// (antes a 30 fps los flashes duraban el doble y las estelas se acumulaban el doble)
+let FS=1, lastLoopT=0;
+function decay(k){ return Math.pow(k,FS); }
+function fadeA(a){ return 1-Math.pow(1-a,FS); }   // alpha de "fundido a negro" equivalente a 'a' por frame a 60 fps
+
+// ===== ANTI-BLANCO (auto-exposición) =====
+// cada 4 frames mide el brillo medio y el % de píxeles casi blancos de la imagen final (a 32×18, barato);
+// si se pasa del objetivo, oscurece las estelas y baja el bloom hasta volver a un negro de verdad
+let WHITE_GUARD=0.6, expoDim=0, lastProbeT=0;
+const probe=document.createElement('canvas'); probe.width=32; probe.height=18;
+const pctx=probe.getContext('2d',{willReadFrequently:true});
+function exposureGuard(now){
+  const dtp=Math.max(0,Math.min(0.5,now-lastProbeT)); lastProbeT=now;
+  if(WHITE_GUARD<=0.01){ expoDim=0; return; }
+  pctx.drawImage(cv,0,0,32,18); const d=pctx.getImageData(0,0,32,18).data; let L=0, wh=0;
+  for(let i=0;i<d.length;i+=4){ const r=d[i],g=d[i+1],b=d[i+2]; L+=0.2126*r+0.7152*g+0.0722*b; if(r>200&&g>200&&b>200) wh++; }
+  L/=576*255; wh/=576;
+  const over=Math.max(L-(0.5-0.32*WHITE_GUARD), (wh-(0.12-0.1*WHITE_GUARD))*1.5);
+  expoDim = over>0 ? Math.min(0.85,expoDim+over*3*dtp) : Math.max(0,expoDim-0.3*dtp);
+}
+// la escena vive en su propio canvas (con estelas); la pantalla se rehace entera cada frame.
+// Antes la escena se dibujaba directamente en pantalla y el bloom/rgb/invert de un frame se quedaba
+// pegado al siguiente: el bloom se sumaba sobre sí mismo frame a frame hasta quemar la imagen a blanco
+let CANVAS_FILTER=false; try{ const tc=document.createElement('canvas').getContext('2d'); tc.filter='blur(2px)'; CANVAS_FILTER=tc.filter==='blur(2px)'; }catch(e){}
+
+function loop(){
+  requestAnimationFrame(loop);
+  if(!analyser) return;
+  analyser.getByteFrequencyData(freq); analyser.getByteTimeDomainData(wave); beatAn.getFloatFrequencyData(beatF);
+  const t=performance.now(); time=t*0.001;
+  const dt=lastLoopT? Math.min(0.1,Math.max(0.001,(t-lastLoopT)/1000)) : 1/60; lastLoopT=t; FS=dt*60;
+  trackFps(t); frameN++;
+
+  // ===== AUTO-VJ: con beat enganchado cambia al empezar frase (en emitBeat); si no, por tiempo =====
+  if(AUTO_ON){
+    if(!(period && beatConf>0.3) && t - autoLast > AUTO_INTERVAL*1000){ autoLast=t; autoNewTargets(); }
+    autoLerp(); // interpola continuos hacia el target cada frame
+  }
+
+  updateSpecCeil(dt); updateBands(dt);
+  const sub=bandLv[0], low=bandLv[1], mid=bandLv[2], hi=bandLv[3];
+  const cen=spectralCentroid();
+  updateSection(time,dt); trackBeat(time,dt);
+  flash*=decay(0.84); invert*=decay(0.6); whiteFlash*=decay(0.5); blackout*=decay(0.5); rgbShift*=decay(0.6); downbeat*=decay(0.8); dropFx*=decay(0.95);
+  rot+=fp.spin*(1+low*4)*(1-calm*0.5)*FS;
+  bgHue+=hueDrift*(0.5+low*4+mid*2)*FS;
+
+  // decide render target: if GRID>1 render scene into buffer then tile
+  let target=sceneCtx, tw=W, th=H;
+  if(GRID>1){ if(buf.width!==Math.ceil(W/GRID)||buf.height!==Math.ceil(H/GRID)){ buf.width=Math.ceil(W/GRID); buf.height=Math.ceil(H/GRID);} target=bctx; tw=buf.width; th=buf.height; }
+
+  // ===== FEEDBACK FRAME (MilkDrop-style trails: realimenta el frame anterior) =====
+  if(FEEDBACK>0.01 && fbCanvas){
+    if(fbCanvas.width!==tw||fbCanvas.height!==th){ fbCanvas.width=tw; fbCanvas.height=th; }
+    target.globalCompositeOperation='source-over';
+    target.save();
+    target.translate(tw/2,th/2);
+    const zoom=1+FEEDBACK_ZOOM*0.06+low*0.04+flash*0.03;   // zoom hacia dentro/fuera
+    const rotF=(FEEDBACK_ROT*0.01+mid*0.006)*(FB_DIR);       // rotación del feedback
+    target.scale(zoom,zoom); target.rotate(rotF);
+    target.globalAlpha=FEEDBACK;
+    target.drawImage(fbCanvas,-tw/2,-th/2,tw,th);
+    target.restore();
+    target.globalAlpha=1;
+  }
+
+  // con rejilla NxN la escena se pinta en un recuadro N veces más pequeño: los grosores (en DPR) se
+  // escalan con él; si no, las líneas salían N veces más gruesas en proporción y saturaban a blanco
+  if(GRID>1){ const dpr0=DPR; DPR=dpr0/Math.sqrt(GRID); try{ renderScene(target,tw,th,sub,low,mid,hi,cen); } finally{ DPR=dpr0; } }
+  else renderScene(target,tw,th,sub,low,mid,hi,cen);
+
+  // guardar este frame para realimentar el siguiente
+  if(FEEDBACK>0.01){ if(!fbCanvas){ fbCanvas=document.createElement('canvas'); fbCtx=fbCanvas.getContext('2d'); fbCanvas.width=tw; fbCanvas.height=th; } fbCtx.globalCompositeOperation='source-over'; fbCtx.clearRect(0,0,tw,th); fbCtx.drawImage(target.canvas,0,0); }
+
+  // pantalla = negro + escena (se rehace entera: nada del post-proceso pasa al frame siguiente)
+  ctx.globalCompositeOperation='source-over'; ctx.globalAlpha=1;
+  ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+  if(GRID>1){
+    for(let gy=0;gy<GRID;gy++) for(let gx=0;gx<GRID;gx++){
+      ctx.save();
+      const ox=gx*tw, oy=gy*th;
+      if(GRIDMIRROR){ const fx=gx%2?-1:1, fy=gy%2?-1:1; ctx.translate(ox+(fx<0?tw:0), oy+(fy<0?th:0)); ctx.scale(fx,fy); }
+      else ctx.translate(ox,oy);
+      ctx.drawImage(buf,0,0);
+      ctx.restore();
+    }
+  } else ctx.drawImage(sceneCv,0,0);
+
+  // ===== BLOOM (glow): solo las zonas brillantes, difuminadas y sumadas =====
+  // el filtro brightness+contrast hace de "umbral": lo oscuro no brilla y el fondo no se lava a gris
+  const bloomA=BLOOM*(1-expoDim);
+  if(bloomA>0.01){
+    const bw=Math.max(1,(W/4)|0), bh=Math.max(1,(H/4)|0);
+    if(!bloomCanvas){ bloomCanvas=document.createElement('canvas'); bloomCtx=bloomCanvas.getContext('2d'); }
+    if(bloomCanvas.width!==bw||bloomCanvas.height!==bh){ bloomCanvas.width=bw; bloomCanvas.height=bh; }
+    bloomCtx.globalCompositeOperation='source-over';
+    bloomCtx.clearRect(0,0,bw,bh);
+    if(CANVAS_FILTER) bloomCtx.filter='brightness(0.75) contrast(2.4) blur('+Math.max(1,Math.round(bw/180))+'px)';
+    bloomCtx.drawImage(cv,0,0,bw,bh);          // downscale (suaviza)
+    if(CANVAS_FILTER) bloomCtx.filter='none';
+    ctx.save();
+    ctx.globalCompositeOperation='lighter';
+    ctx.imageSmoothingEnabled=true;
+    ctx.globalAlpha=bloomA*0.6;
+    ctx.drawImage(bloomCanvas,0,0,W,H);
+    ctx.globalAlpha=bloomA*0.3;
+    ctx.drawImage(bloomCanvas,-8*DPR,-8*DPR,W+16*DPR,H+16*DPR);
+    ctx.restore();
+    ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
+  }
+  if(frameN%4===0) exposureGuard(time);
+
+  // ===== global strobe overlays =====
+  ctx.globalCompositeOperation='source-over';
+  if(blackout>0.3){ ctx.fillStyle='rgba(0,0,0,'+(blackout)+')'; ctx.fillRect(0,0,W,H); }
+  if(whiteFlash>0.04){ ctx.fillStyle='rgba(255,255,255,'+(whiteFlash*0.9)+')'; ctx.fillRect(0,0,W,H); }
+  if(invert>0.05){ ctx.globalCompositeOperation='difference'; ctx.fillStyle='#fff'; ctx.globalAlpha=invert*0.9; ctx.fillRect(0,0,W,H); ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over'; }
+  if(FX.shutter && STROBE>=2 && flash>0.1){ ctx.fillStyle='rgba(0,0,0,'+(flash*0.7)+')'; const bh=H/12; for(let i=0;i<12;i+=2) ctx.fillRect(0,i*bh,W,bh); }
+  if(rgbShift>0.1){ // cheap RGB split using copies of buffer/screen
+    ctx.globalCompositeOperation='screen'; const d=rgbShift*18*DPR;
+    ctx.globalAlpha=0.5;
+    ctx.drawImage(cv,d,0); ctx.drawImage(cv,-d,0);
+    ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
+  }
+
+  if(VHS.on) applyVHS();
+
+  // crossfade auto-vj: breve velo al cambiar combinación
+  if(modeFade>0.01){ ctx.fillStyle='rgba(0,0,0,'+(modeFade*0.5)+')'; ctx.fillRect(0,0,W,H); modeFade*=decay(0.90); }
+
+  if(shotFlash>0.02){ ctx.fillStyle='rgba(255,255,255,'+shotFlash+')'; ctx.fillRect(0,0,W,H); shotFlash*=decay(0.7); }
+  // vignette cinematográfico global (sutil, da profundidad y evita bordes planos)
+  if(!VHS.on && GLOBAL_VIG>0){
+    if(!gVigCanvas || gVigCanvas.width!==W || gVigCanvas.height!==H){
+      gVigCanvas=document.createElement('canvas'); gVigCanvas.width=W; gVigCanvas.height=H;
+      const vx=gVigCanvas.getContext('2d');
+      const vg=vx.createRadialGradient(W/2,H/2,Math.min(W,H)*0.35,W/2,H/2,Math.max(W,H)*0.75);
+      vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,'+(GLOBAL_VIG*0.6)+')');
+      vx.fillStyle=vg; vx.fillRect(0,0,W,H);
+    }
+    ctx.drawImage(gVigCanvas,0,0);
+  }
+  drawScope(sub,low,mid,hi,cen);
+  if(frameN%6===0) lvlEl.textContent=`sub ${m(sub)}  low ${m(low)}  mid ${m(mid)}  high ${m(hi)}  ·${period?(beatConf>0.3?'● lock':'○ busca'):'○ —'}  ·${section}${expoDim>0.05?'  ·anti-blanco '+Math.round(expoDim*100)+'%':''}${fps?'  ·'+fps+'fps':''}`;
+  workAcc+=performance.now()-t;
+}
+const lvlEl=document.getElementById('lvl'), keyLblEl=document.getElementById('keyLbl');
+const B=['▁','▂','▃','▄','▅','▆','▇','█']; function m(v){ return B[Math.min(7,Math.round(v*7))]; }
+
+// ===== SCENE ROUTER (renders into given context) =====
+function renderScene(g,w,h,sub,low,mid,hi,cen){
+  // background RAW: negro profundo con tinte sutil del color dominante (look warehouse oscuro)
+  const energy=Math.min(1,(sub+low+mid+hi)*0.7);
+  const domHue=(COLORMODE==='fixed'? palette.hues[0] : bgHue);
+  const bgL=Math.min(12, 2+energy*5+flash*(STROBE?6:2));   // el fondo nunca pasa de un gris muy oscuro
+  const grad=g.createRadialGradient(w/2,h/2,0,w/2,h/2,Math.max(w,h)*0.75);
+  grad.addColorStop(0,hsl(domHue,palette.sat*0.6,bgL+3,1));
+  grad.addColorStop(1,hsl(domHue,palette.sat*0.4,Math.max(1,bgL-2),1));
+  g.globalCompositeOperation='source-over';
+  const fbk = FEEDBACK>0.01 ? (1-FEEDBACK*0.85) : 1; // con feedback, fondo casi transparente
+  if(vizIdx===0){ // particle scope: fondo negro con estela larga
+    g.fillStyle='rgba(1,1,2,1)'; g.globalAlpha=fadeA((0.18+flash*0.15)*fbk); g.fillRect(0,0,w,h); g.globalAlpha=1;
+  } else if(vizIdx===12){ // xy scope: pantalla CRT con persistencia
+    g.fillStyle='rgb(3,8,6)'; g.globalAlpha=fadeA(0.22*fbk); g.fillRect(0,0,w,h); g.globalAlpha=1;
+  } else {
+    g.fillStyle=grad; g.globalAlpha=fadeA(Math.min(0.9,((vizIdx===4?0.5:0.32)+flash*0.3)*fbk)); g.fillRect(0,0,w,h); g.globalAlpha=1;
+  }
+  // anti-blanco: si la imagen se pasa de brillo, las estelas se apagan más deprisa
+  if(expoDim>0.01){ g.fillStyle='#000'; g.globalAlpha=fadeA(expoDim*0.45); g.fillRect(0,0,w,h); g.globalAlpha=1; }
+  // el anti-blanco también baja la intensidad del dibujo: caleidoscopio, rejilla y overlay pintan lo mismo
+  // muchas veces sumando luz, y eso quema a blanco en un solo frame aunque no haya estelas
+  const drawA=1-expoDim*0.75;
+  g.globalCompositeOperation='lighter'; g.globalAlpha=drawA;
+
+  drawMode(vizIdx, g,w,h,sub,low,mid,hi,cen);
+  // ===== MODO OVERLAY (combinar modos) =====
+  if(OVERLAY>=0 && OVERLAY!==vizIdx){
+    g.globalAlpha=OVERLAY_OP*drawA;
+    g.globalCompositeOperation = OVERLAY_BLEND;
+    drawMode(OVERLAY, g,w,h,sub,low,mid,hi,cen);
+    g.globalAlpha=drawA; g.globalCompositeOperation='lighter';
+  }
+
+  // beat-thrown random shapes (most modes)
+  if(flash>0.05 && STROBE && vizIdx!==4 && vizIdx!==7 && vizIdx!==0){
+    const n=(flash*12)|0;
+    for(let i=0;i<n;i++){ const x=Math.random()*w,y=Math.random()*h,sz=(8+Math.random()*100)*DPR*flash;
+      g.strokeStyle=pc(pick(),100,60,flash*0.7); g.lineWidth=(1+Math.random()*3)*DPR; const k=(Math.random()*3)|0;
+      if(k===0){g.beginPath();g.moveTo(x,y);g.lineTo(x+(Math.random()-0.5)*w,y+(Math.random()-0.5)*h);g.stroke();}
+      else if(k===1)g.strokeRect(x-sz/2,y-sz/2,sz,sz);
+      else {g.beginPath();g.arc(x,y,sz/2,0,6.283);g.stroke();} }
+  }
+  g.globalAlpha=1;
+}
+
+function drawMode(idx, g,w,h,sub,low,mid,hi,cen){
+  const R=Math.min(w,h);
+  switch(idx){
+    case 0: particleScope(g,w,h,sub,low,mid,hi,cen); break;
+    case 1: roseWindow(g,w,h,sub,low,mid,hi,cen); break;
+    case 2: kaleidoWrap(g,w,h,()=>fieldChaos(g,R,sub,low,mid,hi,cen)); break;
+    case 3: kaleidoWrap(g,w,h,()=>fieldFractal(g,R,sub,low,mid,hi,cen)); break;
+    case 4: strobeLights(g,w,h,sub,low,mid,hi); break;
+    case 5: plasma(g,w,h,sub,low,mid,hi,cen); break;
+    case 6: warpStars(g,w,h,sub,low,mid,hi); break;
+    case 7: wmpBars(g,w,h,sub,low,mid,hi); break;
+    case 8: kaleidoWrap(g,w,h,()=>lasers(g,R,sub,low,mid,hi)); break;
+    case 9: kaleidoWrap(g,w,h,()=>tunnel(g,R,sub,low,mid,hi)); break;
+    case 10: gridPulse(g,w,h,sub,low,mid,hi); break;
+    case 11: imageVitral(g,w,h,sub,low,mid,hi,cen); break;
+    case 12: kaleidoWrap(g,w,h,()=>xyScope(g,w,h,sub,low,mid,hi,cen)); break;
+    case 13: spirograph(g,w,h,sub,low,mid,hi,cen); break;
+    case 14: waveTunnel(g,w,h,sub,low,mid,hi,cen); break;
+    case 15: fluid(g,w,h,sub,low,mid,hi,cen); break;
+  }
+}
+
+function kaleidoWrap(g,w,h,drawFn){
+  const cx=w/2, cy=h/2;
+  // kaleido fractal (modo 3) siempre segmenta; el resto según el toggle global
+  const seg = (vizIdx===3 || KALEIDO_ON) ? SEGMENTS : 1;
+  if(seg<=1){ g.save(); g.translate(cx,cy); g.rotate(rot*0.4); drawFn(); g.restore(); return; }
+  // cada segmento suma luz sobre los demás (sobre todo en el centro): con 12–32 copias quemaba a blanco
+  const a0=g.globalAlpha; g.globalAlpha=a0*Math.min(1,2/Math.sqrt(seg));
+  for(let s=0;s<seg;s++){ g.save(); g.translate(cx,cy); g.rotate(rot+(s/seg)*6.283); if(s%2)g.scale(1,-1); drawFn(); g.restore(); }
+  g.globalAlpha=a0;
+}
+
+// --- chaos parametric field ---
+function fieldChaos(g,R,sub,low,mid,hi,cen){
+  const N=fp.density, amp=R*(0.18+low*0.35+sub*0.3+flash*0.2);
+  g.lineWidth=(0.8+mid*4)*DPR; g.beginPath(); let st=false;
+  for(let i=0;i<N;i++){ const u=i/N, f=gv((i*4)%512)/255, tt=u*6.283+time*(0.3+hi*1.5); let x,y;
+    switch(fp.style){ case 0:x=Math.sin(fp.a*tt+fp.p1);y=Math.sin(fp.b*tt+fp.p2);break;
+      case 1:{const r=Math.sin(fp.c*tt)*Math.cos(fp.d*tt*0.5);x=Math.cos(tt)*r;y=Math.sin(tt)*r;}break;
+      case 2:x=0.6*(Math.sin(fp.a*tt+fp.p1)+0.5*Math.sin(fp.c*tt*2.3+time));y=0.6*(Math.cos(fp.b*tt+fp.p2)+0.5*Math.cos(fp.d*tt*1.7-time));break;
+      case 3:x=Math.cos(tt)*(1-0.4*Math.cos(fp.a*tt))*Math.cos(fp.p1+time*0.2);y=Math.sin(tt)*(1-0.4*Math.cos(fp.b*tt));break;
+      default:{const rr=u*(1+0.4*Math.sin(fp.a*tt+time));x=Math.cos(fp.c*tt)*rr;y=Math.sin(fp.d*tt)*rr;} }
+    x+=f*0.4*Math.sin(tt*7+time*3); y+=f*0.4*Math.cos(tt*5-time*2);
+    const px=x*amp,py=y*amp; st?g.lineTo(px,py):g.moveTo(px,py); st=true; }
+  g.strokeStyle=pc(pick()+time*40,100,55+hi*30,0.55+flash*0.3); g.stroke();
+}
+// --- fractal-ish recursive squares/circles ---
+function fieldFractal(g,R,sub,low,mid,hi,cen){
+  let s=R*(0.4+sub*0.3); g.lineWidth=1.4*DPR;
+  for(let d=0;d<7;d++){ const f=gv(d*30)/255; g.strokeStyle=pc(phue(d)+time*30+d*20,100,55,0.4+f*0.5);
+    g.save(); g.rotate(time*0.3+d*0.5+mid*3); if(fp.shape===2){g.beginPath();g.arc(0,0,s,0,6.283);g.stroke();} else g.strokeRect(-s,-s,s*2,s*2); g.restore(); s*=0.62+f*0.25; }
+}
+// --- RAVE strobe lights / PAR cans ---
+function strobeLights(g,w,h,sub,low,mid,hi){
+  const beat=flash, energy=Math.min(1,(sub+low+mid+hi)*0.7);
+  // blinder de pantalla completa solo en el primer tiempo del compás (antes: en cada golpe fuerte)
+  if(STROBE && downbeat>0.45 && calm<0.5){ g.fillStyle=pc(pick(),100,72,downbeat*0.5); g.fillRect(0,0,w,h); }
+  // gate: in strobe mode shapes blink with the beat; otherwise driven by audio energy
+  const fire = STROBE? (flash>0.12 || Math.random()<0.12+beat*0.5) : energy>0.25;
+  if(!fire && STROBE>=2) return; // hard blackout between flashes = true strobe feel
+  const cx=w/2, cy=h/2, R=Math.min(w,h);
+  const n = STROBE_DENSITY;            // how many shapes
+  for(let i=0;i<n;i++){
+    const f=gv((i*17)%256)/255;
+    const hue=pick();
+    g.fillStyle=pc(hue,100,55+f*30, (0.35+f*0.5)*(STROBE?(0.5+beat*0.5):1));
+    g.strokeStyle=pc(hue,100,70,0.5+f*0.4); g.lineWidth=(1+f*3)*DPR;
+    drawStrobeShape(g, i, n, w, h, R, f, sub, low, mid, hi);
+  }
+}
+function drawStrobeShape(g,i,n,w,h,R,f,sub,low,mid,hi){
+  const t=time;
+  let x,y,s=(R*0.04)+(f*R*0.18)+(flash*R*0.1);
+  // layout: where each shape sits, depends on pattern
+  switch(STROBE_LAYOUT){
+    case 0: x=(i+0.5)/n*w; y=h/2 + Math.sin(i*1.3+t*4)*h*0.3; break;          // row
+    case 1: { const a=(i/n)*6.283+t*(0.5+low); const rr=R*0.35*(1+f*0.6); x=w/2+Math.cos(a)*rr; y=h/2+Math.sin(a)*rr; } break; // ring
+    case 2: { const cols=Math.ceil(Math.sqrt(n)); x=((i%cols)+0.5)/cols*w; y=((Math.floor(i/cols))+0.5)/cols*h; } break;       // grid
+    case 3: { const a=(i/n)*6.283*4+t*2; const rr=R*0.04*i*(1+f); x=w/2+Math.cos(a)*rr; y=h/2+Math.sin(a)*rr; } break;         // spiral
+    default: x=Math.random()*w; y=Math.random()*h;                            // scatter
+  }
+  g.save(); g.translate(x,y); g.rotate(t*(STROBE_SPIN)+i*0.6);
+  const filled = STROBE_FILL;
+  switch(STROBE_SHAPE){
+    case 0: // triangle
+      g.beginPath(); for(let k=0;k<3;k++){ const a=k/3*6.283-1.57; const px=Math.cos(a)*s, py=Math.sin(a)*s; k?g.lineTo(px,py):g.moveTo(px,py);} g.closePath(); filled?g.fill():g.stroke(); break;
+    case 1: // square
+      filled? g.fillRect(-s,-s,s*2,s*2) : g.strokeRect(-s,-s,s*2,s*2); break;
+    case 2: // circle
+      g.beginPath(); g.arc(0,0,s,0,6.283); filled?g.fill():g.stroke(); break;
+    case 3: // hexagon
+      g.beginPath(); for(let k=0;k<6;k++){ const a=k/6*6.283; const px=Math.cos(a)*s, py=Math.sin(a)*s; k?g.lineTo(px,py):g.moveTo(px,py);} g.closePath(); filled?g.fill():g.stroke(); break;
+    case 4: // star
+      g.beginPath(); for(let k=0;k<10;k++){ const a=k/10*6.283-1.57; const rr=k%2?s:s*0.45; const px=Math.cos(a)*rr, py=Math.sin(a)*rr; k?g.lineTo(px,py):g.moveTo(px,py);} g.closePath(); filled?g.fill():g.stroke(); break;
+    case 5: // diamond beam (tall)
+      g.beginPath(); g.moveTo(0,-s*2); g.lineTo(s*0.6,0); g.lineTo(0,s*2); g.lineTo(-s*0.6,0); g.closePath(); filled?g.fill():g.stroke(); break;
+    default: // cross/plus
+      const t2=s*0.4; g.beginPath(); g.rect(-t2,-s,t2*2,s*2); g.rect(-s,-t2,s*2,t2*2); filled?g.fill():g.stroke();
+  }
+  g.restore();
+}
+// --- plasma (WMP Ambience vibe) ---
+function plasma(g,w,h,sub,low,mid,hi,cen){
+  const cells=40, cw=w/cells, ch=h/cells;
+  // cubre toda la pantalla: en modo suma ('lighter') se acumulaba frame a frame hasta el blanco
+  const op=g.globalCompositeOperation; if(op==='lighter') g.globalCompositeOperation='source-over';
+  for(let yy=0;yy<cells;yy++)for(let xx=0;xx<cells;xx++){
+    const v=Math.sin(xx*0.3+time*2)+Math.sin(yy*0.4-time*1.5)+Math.sin((xx+yy)*0.3+time)+Math.sin(Math.hypot(xx-cells/2,yy-cells/2)*0.5-time*2);
+    const f=gv((xx*yy)%256)/255;
+    g.fillStyle=pc(bgHue+v*60+cen.norm*120,100,22+f*36+low*14,0.5);
+    g.fillRect(xx*cw,yy*ch,cw+1,ch+1);
+  }
+  g.globalCompositeOperation=op;
+}
+// --- warp starfield ---
+function warpStars(g,w,h,sub,low,mid,hi){
+  const cx=w/2,cy=h/2, sp=0.005+low*0.06+flash*0.05;
+  stars.forEach((st,i)=>{ st.z-=sp; if(st.z<=0.02){st.x=Math.random()*2-1;st.y=Math.random()*2-1;st.z=1;}
+    const px=cx+(st.x/st.z)*cx, py=cy+(st.y/st.z)*cy, pz=cx+(st.x/(st.z+sp))*cx, qz=cy+(st.y/(st.z+sp))*cy;
+    const f=gv((i*5)%256)/255; g.strokeStyle=pc(pick()+time*40,100,60+f*30,(1-st.z)*0.9); g.lineWidth=(1+(1-st.z)*3)*DPR;
+    g.beginPath(); g.moveTo(pz,qz); g.lineTo(px,py); g.stroke(); });
+}
+// --- WMP Battery-style bars mirrored ---
+function wmpBars(g,w,h,sub,low,mid,hi){
+  const bins=72, bw=w/bins, cy=h/2;
+  for(let i=0;i<bins;i++){ const idx=Math.floor(Math.pow(i/bins,1.5)*460), f=gv(idx)/255, ht=f*h*0.46, hue=phue(i)+time*40+i*2;
+    g.fillStyle=pc(hue,palette.sat,52+f*30,0.6+f*0.35); g.fillRect(i*bw+bw*0.1,cy-ht,bw*0.8,ht); g.fillRect(i*bw+bw*0.1,cy,bw*0.8,ht); }
+  if(STROBE&&flash>0.1){ g.fillStyle=pc(pick(),100,70,flash*0.4); g.fillRect(0,cy-1*DPR,w,2*DPR); }
+}
+// --- lasers from center ---
+function lasers(g,R,sub,low,mid,hi){
+  const n=10+((mid*20)|0); for(let i=0;i<n;i++){ const a=(i/n)*6.283+time*(0.5+hi); const f=gv((i*13)%256)/255; const len=R*(0.5+f*0.6+flash*0.3);
+    g.strokeStyle=pc(pick()+time*60,100,60,0.4+f*0.5); g.lineWidth=(1+f*3)*DPR; g.beginPath(); g.moveTo(0,0); g.lineTo(Math.cos(a)*len,Math.sin(a)*len); g.stroke(); }
+}
+// --- tunnel ---
+function tunnel(g,R,sub,low,mid,hi){ const rings=22,sides=6; let z=time*0.5+low*4;
+  for(let r=rings;r>0;r--){ const zz=(r+(z%1))/rings, rad=(1-zz)*R*0.9, f=gv(Math.floor((r/rings)*200))/255;
+    g.strokeStyle=pc(phue(r)+r*12+time*30,palette.sat,40+(1-zz)*40,0.12+(1-zz)*0.6+f*0.4); g.lineWidth=(1+f*4)*DPR; g.beginPath();
+    for(let s=0;s<=sides;s++){ const a=(s/sides)*6.283+z*0.5+r*0.05, wob=1+f*0.4*Math.sin(s*3+time*3); const x=Math.cos(a)*rad*wob,y=Math.sin(a)*rad*wob; s?g.lineTo(x,y):g.moveTo(x,y);} g.stroke(); }
+}
+// --- grid pulse blocks ---
+function gridPulse(g,w,h,sub,low,mid,hi){
+  const n=12, cw=w/n, ch=h/n;
+  for(let yy=0;yy<n;yy++)for(let xx=0;xx<n;xx++){ const idx=((xx+yy*n)*3)%256, f=gv(idx)/255; if(f<0.15&&Math.random()>0.1)continue;
+    g.fillStyle=pc(pick()+time*30,100,50+f*40,0.3+f*0.6); const pad=cw*0.08*(1-f); g.fillRect(xx*cw+pad,yy*ch+pad,cw-pad*2,ch-pad*2); }
+}
+
+// --- SPIROGRAPH (hypotrochoid armónico reactivo) ---
+function spirograph(g,w,h,sub,low,mid,hi,cen){
+  const cx=w/2, cy=h/2, R=Math.min(w,h)*0.42;
+  const Rr=1, rr=0.28+mid*0.25+0.15*Math.sin(time*0.3), d=0.7+low*0.5;
+  const turns=Math.PI*2*ROSE_RINGS*3;
+  const layers=3;
+  for(let L=0;L<layers;L++){
+    const f=bandAvg(8+L*40,40+L*60);
+    g.beginPath();
+    const ph=time*(0.2+L*0.15)+L*1.7;
+    for(let t=0;t<turns;t+=0.04){
+      const k=(Rr-rr)/rr;
+      const x=(Rr-rr)*Math.cos(t)+d*rr*Math.cos(k*t+ph);
+      const y=(Rr-rr)*Math.sin(t)-d*rr*Math.sin(k*t+ph);
+      const px=cx+x*R*(1+f*0.3), py=cy+y*R*(1+f*0.3);
+      t===0?g.moveTo(px,py):g.lineTo(px,py);
+    }
+    g.strokeStyle=pc((COLORMODE==="fixed"?palette.hues[L%palette.hues.length]:L*80+time*30),100,55+f*30,0.5+f*0.4);
+    g.lineWidth=(1+f*3)*DPR; g.stroke();
+  }
+}
+
+// --- WAVE TUNNEL (anillos de waveform en perspectiva, hipnótico) ---
+function waveTunnel(g,w,h,sub,low,mid,hi,cen){
+  const cx=w/2, cy=h/2, R=Math.min(w,h)*0.5;
+  const rings=20, z0=(time*0.6+low*3)%1;
+  for(let r=rings;r>0;r--){
+    const z=(r - z0)/rings; if(z<=0)continue;
+    const rad=R*(1-z)*1.4;
+    const f=gv(Math.floor((r/rings)*256))/255;
+    g.beginPath();
+    const pts=64;
+    for(let i=0;i<=pts;i++){
+      const a=(i/pts)*6.283;
+      const wv=(wave[(i*32)%wave.length]-128)/128;
+      const rr=rad*(1+wv*0.12*(1+f)+f*0.1);
+      const x=cx+Math.cos(a)*rr, y=cy+Math.sin(a)*rr;
+      i?g.lineTo(x,y):g.moveTo(x,y);
+    }
+    g.closePath();
+    g.strokeStyle=pc((COLORMODE==="fixed"?palette.hues[r%palette.hues.length]:r*15+time*40),100,45+(1-z)*40,0.15+(1-z)*0.7);
+    g.lineWidth=(0.8+f*3)*DPR*(1-z+0.3); g.stroke();
+  }
+}
+
+// --- FLUID (metaballs / blobs orgánicos audio-reactivos) ---
+const fluidBlobs=[];
+function fluid(g,w,h,sub,low,mid,hi,cen){
+  const cx=w/2, cy=h/2, R=Math.min(w,h);
+  if(fluidBlobs.length===0){ for(let i=0;i<10;i++) fluidBlobs.push({a:Math.random()*6.28,sp:0.2+Math.random()*0.8,r:0.2+Math.random()*0.6,ph:Math.random()*6.28}); }
+  g.globalCompositeOperation='lighter';
+  const bands=[sub,low,mid,hi];
+  fluidBlobs.forEach((b,i)=>{
+    const f=gv((i*23)%256)/255;
+    b.a+=b.sp*0.005*(1+mid*3);
+    const orbit=R*(0.12+b.r*0.32)*(1+bands[i%4]*0.5);
+    const x=cx+Math.cos(b.a+time*0.2)*orbit, y=cy+Math.sin(b.a*1.2+time*0.15)*orbit*0.8;
+    const rad=R*(0.10+f*0.22+bands[i%4]*0.18+flash*0.06);
+    const hue=(COLORMODE==='fixed')?palette.hues[i%palette.hues.length]:(bgHue+i*36+time*14);
+    const gr=g.createRadialGradient(x,y,0,x,y,rad);
+    gr.addColorStop(0,pc(hue,90,55,0.55)); gr.addColorStop(0.5,pc(hue,90,45,0.22)); gr.addColorStop(1,pc(hue,90,40,0));
+    g.fillStyle=gr; g.beginPath(); g.arc(x,y,rad,0,6.283); g.fill();
+  });
+}
+
+
+// --- PARTICLE SCOPE (estilo Visual Lab Pro: onda de chispas doradas) ---
+let scopeRot=0;
+function particleScope(g,w,h,sub,low,mid,hi,cen){
+  scopeRot += 0.004 + low*0.02;
+  const cx=w/2, cy=h/2, R=Math.min(w,h)*0.34;
+  const len=wave.length, step=2, energy=Math.min(1,(sub+low+mid+hi)*0.7);
+  const baseHue = (COLORMODE==='fixed')? palette.hues[0] : 38; // dorado por defecto
+  g.save(); g.translate(cx,cy); g.rotate(scopeRot*SCOPE_SHAPE_ROT);
+  for(let i=0;i<len;i+=step){
+    const v=(wave[i]-128)/128;
+    const u=i/len;
+    let px,py;
+    // forma base del recorrido del scope
+    if(SCOPE_PATH===0){ // lineal horizontal (clásico)
+      px=(u-0.5)*R*2.6; py=v*R*0.9*(1+low);
+    } else if(SCOPE_PATH===1){ // circular (lobulado, como el logo)
+      const a=u*6.283*SCOPE_LOBES;
+      const rr=R*(0.6+v*0.5);
+      px=Math.cos(a)*rr; py=Math.sin(a)*rr;
+    } else { // lissajous
+      const a=u*6.283;
+      px=Math.sin(a*3+v*4)*R; py=Math.sin(a*2+scopeRot)*R;
+    }
+    // chispas: varias partículas alrededor de cada punto
+    const dens=SCOPE_DENSITY;
+    for(let p=0;p<dens;p++){
+      const spread=(1-Math.abs(v))*6 + Math.random()*SCOPE_SPREAD*14;
+      const ang=Math.random()*6.283;
+      const sx=px+Math.cos(ang)*spread*DPR, sy=py+Math.sin(ang)*spread*DPR;
+      const bright=55+Math.abs(v)*40+energy*20;
+      const size=(0.5+Math.random()*1.8)*DPR*(1+energy);
+      const hue=baseHue + (COLORMODE==='fixed'? (i%palette.hues.length?0:0) : v*30) + time*10;
+      g.fillStyle=pc(hue,100,bright,0.5+Math.abs(v)*0.5);
+      g.fillRect(sx-size/2,sy-size/2,size,size);
+    }
+  }
+  g.restore();
+  // núcleo brillante (glow)
+  const cg=g.createRadialGradient(cx,cy,0,cx,cy,R*1.4);
+  cg.addColorStop(0,pc(baseHue,100,60,0.18+flash*0.3));
+  cg.addColorStop(1,pc(baseHue,100,50,0));
+  g.fillStyle=cg; g.fillRect(cx-R*1.4,cy-R*1.4,R*2.8,R*2.8);
+}
+
+// --- ROSE WINDOW (rosetón de catedral / vidriera) ---
+function roseWindow(g,w,h,sub,low,mid,hi,cen){
+  g.globalCompositeOperation='source-over';
+  const cx=w/2, cy=h/2, R=Math.min(w,h)*0.46;
+  const N=Math.max(8,ROSE_PETALS|0);
+  const sat=(COLORMODE==='fixed')?fixedSat:90;
+  const baseHue=(COLORMODE==='fixed')?palette.hues[0]:(bgHue+cen.norm*120);
+  const hueOf=(i)=> (COLORMODE==='fixed')? palette.hues[i%palette.hues.length] : (baseHue+i*40+time*16);
+  const P=(a,r)=>[Math.cos(a)*r,Math.sin(a)*r];
+
+  // los anillos PULSAN con bandas distintas y rotan en sentidos opuestos
+  const pulSub=1+sub*0.5+flash*0.3, pulLow=1+low*0.45, pulMid=1+mid*0.4, pulHi=1+hi*0.5;
+  const r0=R*0.10*pulSub, r1=R*0.22*pulLow, r2=R*0.42*pulMid, r3=R*0.74*pulMid, r4=R*0.90*pulHi, r5=R;
+
+  g.save(); g.translate(cx,cy);
+
+  // halo de fondo reactivo (suma, glow) — sin disco de piedra opaco para que sea más visualizer
+  const halo=g.createRadialGradient(0,0,R*0.05,0,0,R*1.1);
+  halo.addColorStop(0,pc(baseHue,sat,40,0.35+flash*0.4));
+  halo.addColorStop(0.6,pc(baseHue+60,sat,28,0.18));
+  halo.addColorStop(1,'rgba(0,0,0,0)');
+  g.globalCompositeOperation='lighter'; g.fillStyle=halo; g.beginPath(); g.arc(0,0,R*1.1,0,6.283); g.fill();
+
+  // foil luminoso (relleno aditivo + contorno claro)
+  function foilLit(x,y,rad,lobes,rot,hue,f){
+    g.save(); g.translate(x,y); g.rotate(rot); g.beginPath();
+    const steps=lobes*22;
+    for(let i=0;i<=steps;i++){ const t=i/steps*6.283; const lobe=Math.abs(Math.cos(lobes*t/2)); const rr=rad*(0.5+0.5*Math.pow(lobe,0.6)); const p=[Math.cos(t)*rr,Math.sin(t)*rr]; i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]); }
+    g.closePath();
+    if(userImg && ROSE_USEIMG){ g.save(); g.clip(); const sc2=R*2.3/Math.max(userImg.width,userImg.height); g.globalCompositeOperation='source-over'; g.globalAlpha=0.9; g.drawImage(userImg,-userImg.width*sc2/2,-userImg.height*sc2/2,userImg.width*sc2,userImg.height*sc2); g.globalAlpha=1; g.restore(); g.globalCompositeOperation='lighter'; }
+    const gr=g.createRadialGradient(0,0,0,0,0,rad);
+    gr.addColorStop(0,pc(hue,sat,55+f*25,0.85)); gr.addColorStop(1,pc(hue,sat,38,0.25));
+    g.fillStyle=gr; g.fill();
+    g.strokeStyle=pc(hue,sat,72,0.7+f*0.3); g.lineWidth=(1+f*2)*DPR; g.stroke();
+    g.restore();
+  }
+
+  g.globalCompositeOperation='lighter';
+  const spin=time*0.15*ROSE_SPIN;
+
+  // ===== ANILLO EXTERIOR: pétalos grandes (arco apuntado) que se extienden con low =====
+  g.save(); g.rotate(spin + low*0.4);
+  for(let s=0;s<N;s++){
+    const a0=(s/N)*6.283, a1=((s+1)/N)*6.283, am=(a0+a1)/2;
+    const gap=(a1-a0)*0.08, b0=a0+gap, b1=a1-gap;
+    const f=gv((s*9)%220)/255;
+    const tip=r3*(1+f*0.35);                  // la punta del pétalo respira con el audio
+    g.beginPath();
+    g.moveTo(...P(b0,r2));
+    g.lineTo(...P(b0,r3*0.9));
+    g.quadraticCurveTo(...P(b0,tip*1.02),...P(am,tip));
+    g.quadraticCurveTo(...P(b1,tip*1.02),...P(b1,r3*0.9));
+    g.lineTo(...P(b1,r2));
+    g.quadraticCurveTo(...P(am,r2*0.85),...P(b0,r2));
+    g.closePath();
+    const hue=hueOf(s);
+    const gr=g.createRadialGradient(0,0,r2*0.5,0,0,tip);
+    gr.addColorStop(0,pc(hue,sat,52+f*25,0.8)); gr.addColorStop(1,pc(hue+20,sat,40,0.2));
+    g.fillStyle=gr; g.fill();
+    g.strokeStyle=pc(hue,sat,72,0.7); g.lineWidth=(1.4+f*2.5)*DPR; g.stroke();
+    // foil reactivo dentro de cada pétalo
+    foilLit(...P(am,(r2+tip)/2), R*0.07*(1+f*0.5), 3, am-1.5708+time*0.5, hueOf(s+2), f);
+  }
+  g.restore();
+
+  // ===== ANILLO INTERIOR: pétalos que rotan al revés =====
+  g.save(); g.rotate(-spin*1.4 - mid*0.3);
+  for(let s=0;s<N;s++){
+    const a0=(s/N)*6.283, a1=((s+1)/N)*6.283, am=(a0+a1)/2;
+    const gap=(a1-a0)*0.10, b0=a0+gap, b1=a1-gap;
+    const f=gv((s*7+40)%200)/255;
+    const tip=r2*(1+f*0.3);
+    g.beginPath();
+    g.moveTo(...P(b0,r1));
+    g.quadraticCurveTo(...P(am,tip),...P(b1,r1));
+    g.quadraticCurveTo(...P(am,r1*0.6),...P(b0,r1));
+    g.closePath();
+    const hue=hueOf(s+1);
+    g.fillStyle=pc(hue,sat,48+f*28,0.75); g.fill();
+    g.strokeStyle=pc(hue,sat,70,0.6); g.lineWidth=(1+f*2)*DPR; g.stroke();
+  }
+  g.restore();
+
+  // ===== CORONA EXTERIOR de óculos que laten con hi =====
+  g.save(); g.rotate(spin*0.6);
+  for(let s=0;s<N;s++){
+    const am=((s+0.5)/N)*6.283, f=gv((s*5+90)%200)/255;
+    foilLit(...P(am,(r4+r5)/2*(1+hi*0.15)), R*0.05*(1+f*0.6+hi*0.3), 4, am+time*0.3, hueOf(s+3), f);
+  }
+  g.restore();
+
+  // anillos de circunferencia finos y luminosos
+  [r1,r2,r3,r4].forEach((rr,i)=>{ g.strokeStyle=pc(hueOf(i*2),sat,55,0.25); g.lineWidth=1.5*DPR; g.beginPath(); g.arc(0,0,rr,0,6.283); g.stroke(); });
+
+  // ===== ÓCULO CENTRAL pulsante =====
+  foilLit(0,0, r0*(1+sub*0.4+flash*0.3), Math.max(6,(N/2)|0), spin*2, baseHue, hi);
+  const cg=g.createRadialGradient(0,0,0,0,0,r0*0.5);
+  cg.addColorStop(0,pc(baseHue+time*20,100,70,0.95)); cg.addColorStop(1,pc(baseHue,sat,50,0));
+  g.fillStyle=cg; g.beginPath(); g.arc(0,0,r0*0.5*(1+sub*0.6+flash*0.4),0,6.283); g.fill();
+
+  g.restore();
+}
+
+// --- IMAGE VITRAL (imagen importada caleidoscópica) ---
+function imageVitral(g,w,h,sub,low,mid,hi,cen){
+  g.globalCompositeOperation='source-over';
+  if(!userImg){    g.fillStyle='rgba(255,255,255,0.5)'; g.font=`${14*DPR}px monospace`; g.textAlign='center';
+    g.fillText('importa una imagen en el panel ⚙ → image', w/2, h/2); g.textAlign='left';
+    return;
+  }
+  const cx=w/2, cy=h/2, R=Math.min(w,h)*0.6;
+  const seg=SEGMENTS;
+  g.save(); g.translate(cx,cy); g.rotate(time*0.1+low*0.4);
+  const sc2=R*2/Math.max(userImg.width,userImg.height)*(1+sub*0.3+flash*0.2);
+  for(let s=0;s<seg;s++){
+    g.save(); g.rotate((s/seg)*6.283); if(s%2)g.scale(1,-1);
+    g.beginPath(); g.moveTo(0,0); g.arc(0,0,R,-3.14/seg,3.14/seg); g.closePath(); g.clip();
+    g.globalAlpha=0.9;
+    g.drawImage(userImg, -userImg.width*sc2/2, -userImg.height*sc2/2, userImg.width*sc2, userImg.height*sc2);
+    // tinte reactivo
+    g.globalCompositeOperation='overlay'; g.fillStyle=pc(pick()+time*20,100,50,0.3+mid*0.4); g.fillRect(-R,-R,R*2,R*2);
+    g.restore();
+  }
+  g.restore();
+}
+
+// --- XY SCOPE (osciloscopio analógico modo X-Y, fósforo verde CRT, figuras Lissajous) ---
+let xyPhase=0;
+function xyScope(g,w,h,sub,low,mid,hi,cen){
+  // dibuja centrado en el ORIGEN (kaleidoWrap ya hizo translate al centro)
+  const R=Math.min(w,h)*0.40;
+  const ph = (COLORMODE==='fixed')? palette.hues[0] : XY_HUE;
+  const single = !KALEIDO_ON || SEGMENTS<=1;
+  // rejilla del osciloscopio (solo en vista simple)
+  if(XY_GRID && single){
+    g.strokeStyle=pc(ph,60,30,0.35); g.lineWidth=1*DPR;
+    const div=R*2/5;
+    for(let i=-5;i<=5;i++){ g.globalAlpha=(i===0)?0.6:0.28;
+      g.beginPath(); g.moveTo(i*div, -R*1.25); g.lineTo(i*div, R*1.25); g.stroke();
+      g.beginPath(); g.moveTo(-R*1.25, i*div); g.lineTo(R*1.25, i*div); g.stroke(); }
+    g.globalAlpha=1;
+  }
+  xyPhase += 0.012 + low*0.06 + mid*0.03;
+  const amp=R*(0.8+low*0.4+flash*0.2);
+  const rotF = XY_ROT*(time*0.3 + low*1.2);
+  const rx=XY_RATIO, ry=XY_RATIO_Y;
+  const len=wave.length;
+  g.save(); g.rotate(rotF);
+  g.globalCompositeOperation='lighter';
+  const passes=[[ (10+XY_GLOW*22)*DPR, 0.12+XY_GLOW*0.12 ],[ (5+XY_GLOW*10)*DPR, 0.2 ],[ 2.5*DPR, 0.9 ],[ 1*DPR, 1 ]];
+  for(const [lw,al] of passes){
+    g.strokeStyle=pc(ph + (COLORMODE==='fixed'?0:time*8), 90, 60, al); g.lineWidth=lw; g.beginPath();
+    for(let i=0;i<len;i+=2){
+      const u=i/len;
+      const vx=(wave[i]-128)/128;
+      const j=(i + (len/4))|0; const vy=(wave[j%len]-128)/128;
+      const a=u*6.283;
+      const px=(Math.cos(a*rx+xyPhase)*0.5 + vx*0.5)*amp*XY_SHAPE + Math.sin(a*rx+xyPhase)*amp*(1-XY_SHAPE);
+      const py=(Math.sin(a*ry+xyPhase*1.3)*0.5 + vy*0.5)*amp*XY_SHAPE + Math.cos(a*ry+xyPhase)*amp*(1-XY_SHAPE);
+      i?g.lineTo(px,py):g.moveTo(px,py);
+    }
+    g.stroke();
+  }
+  g.restore();
+}
+
+// ===== SCOPE =====
+// ===== VHS POST-PROCESS =====
+const vhsBuf=document.createElement('canvas'); const vctx=vhsBuf.getContext('2d');
+let vhsNoise=null, vhsNoiseT=0;
+function applyVHS(){
+  const t=time;
+  // snapshot del frame una sola vez (para chroma y wobble)
+  if(vhsBuf.width!==W||vhsBuf.height!==H){ vhsBuf.width=W; vhsBuf.height=H; }
+  const needSnap = VHS.chroma>0.01 || VHS.bleed>0.01 || VHS.wobble>0.01;
+  if(needSnap){ vctx.clearRect(0,0,W,H); vctx.drawImage(cv,0,0); }
+
+  // 1) aberración cromática / bleed (rápido: drawImage con blend screen)
+  if(VHS.chroma>0.01 || VHS.bleed>0.01){
+    const dx=(VHS.chroma*12+Math.sin(t*6)*VHS.wobble*4)*DPR;
+    ctx.globalCompositeOperation='screen';
+    ctx.globalAlpha=0.45*VHS.chroma; ctx.drawImage(vhsBuf, dx,0); ctx.drawImage(vhsBuf,-dx,0);
+    if(VHS.bleed>0.01){ ctx.globalAlpha=0.3*VHS.bleed; ctx.drawImage(vhsBuf, dx*2.2, VHS.bleed*2*DPR); }
+    ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
+  }
+  // 2) tracking wobble: desplaza bandas con drawImage (mucho más rápido que getImageData)
+  if(VHS.wobble>0.01){
+    const bands=6+((VHS.wobble*10)|0);
+    for(let b=0;b<bands;b++){
+      const by=((b/bands)*H + (t*120*VHS.wobble)%(H/bands))|0;
+      const bh=Math.max(2,(H/bands)*rnd(0.3,0.8))|0;
+      const off=Math.sin(t*7+b*1.3)*VHS.wobble*30*DPR + (Math.random()-0.5)*VHS.wobble*10*DPR;
+      ctx.drawImage(vhsBuf, 0,by,W,bh, off,by,W,bh);
+    }
+  }
+  // 3) scanlines (patrón cacheado, no recrea gradiente cada banda)
+  if(VHS.scan>0.01){
+    if(!vhsScanPat || vhsScanPat._dpr!==DPR){ vhsScanPat=makeScanPattern(); }
+    ctx.globalCompositeOperation='multiply'; ctx.globalAlpha=VHS.scan;
+    ctx.fillStyle=vhsScanPat; ctx.fillRect(0,0,W,H);
+    ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
+    const barY=((t*80)%(H/DPR))*DPR;
+    const grd=ctx.createLinearGradient(0,barY-50*DPR,0,barY+50*DPR);
+    grd.addColorStop(0,'rgba(255,255,255,0)'); grd.addColorStop(0.5,'rgba(255,255,255,'+(VHS.scan*0.1)+')'); grd.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=grd; ctx.fillRect(0,barY-50*DPR,W,100*DPR);
+  }
+  // 4) noise (canvas pequeño precalculado en ciclo de frames)
+  if(VHS.noise>0.01){
+    if(!vhsNoiseFrames){ vhsNoiseFrames=[]; const nw=Math.ceil(W/3),nh=Math.ceil(H/3);
+      for(let k=0;k<4;k++){ const c=document.createElement('canvas'); c.width=nw;c.height=nh; const nc=c.getContext('2d'); const id=nc.createImageData(nw,nh),d=id.data; for(let i=0;i<d.length;i+=4){ const v=(Math.random()*255)|0; d[i]=d[i+1]=d[i+2]=v; d[i+3]=255; } nc.putImageData(id,0,0); vhsNoiseFrames.push(c); } }
+    const nf=vhsNoiseFrames[(t*20|0)%4];
+    ctx.globalCompositeOperation='overlay'; ctx.globalAlpha=VHS.noise*0.5;
+    ctx.imageSmoothingEnabled=false; ctx.drawImage(nf,0,0,W,H); ctx.imageSmoothingEnabled=true;
+    ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
+  }
+  // 5) vignette (cacheada)
+  if(VHS.vignette>0.01){
+    if(!vhsVigCanvas || vhsVigCanvas.width!==W || vhsVigCanvas.height!==H || vhsVigCanvas._v!==Math.round(VHS.vignette*20)){
+      vhsVigCanvas=document.createElement('canvas'); vhsVigCanvas.width=W; vhsVigCanvas.height=H; vhsVigCanvas._v=Math.round(VHS.vignette*20);
+      const vx=vhsVigCanvas.getContext('2d');
+      const vg=vx.createRadialGradient(W/2,H/2,Math.min(W,H)*0.3,W/2,H/2,Math.max(W,H)*0.72);
+      vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,'+(VHS.vignette*0.85)+')');
+      vx.fillStyle=vg; vx.fillRect(0,0,W,H);
+    }
+    ctx.drawImage(vhsVigCanvas,0,0);
+  }
+}
+let vhsVigCanvas=null;
+let vhsScanPat=null, vhsNoiseFrames=null;
+function makeScanPattern(){
+  const c=document.createElement('canvas'); const step=Math.max(2,Math.round(2*DPR)); c.width=1; c.height=step*2;
+  const x=c.getContext('2d'); x.fillStyle='rgba(0,0,0,0.7)'; x.fillRect(0,0,1,step);
+  const p=ctx.createPattern(c,'repeat'); p._dpr=DPR; return p;
+}
+
+function drawScope(sub,low,mid,hi,cen){
+  const w=sc.width,h=sc.height,hue=cen.norm*360+time*15,bright=Math.min(1,(sub+low+mid+hi)*0.6);
+  sctx.fillStyle='rgba(0,0,0,0.28)'; sctx.fillRect(0,0,w,h); sctx.globalCompositeOperation='lighter';
+  const len=wave.length; sctx.lineWidth=2*DPR; sctx.strokeStyle=pc(hue,90,45+bright*40,0.95); sctx.beginPath();
+  for(let i=0;i<len;i+=2){ const x=(i/len)*w,v=(wave[i]-128)/128,y=h/2+v*h*0.42*(1+low*0.5); i?sctx.lineTo(x,y):sctx.moveTo(x,y);} sctx.stroke();
+  sctx.lineWidth=1.2*DPR; sctx.strokeStyle=pc(hue+180,90,50,0.45); sctx.beginPath();
+  for(let i=0;i<len;i+=2){ const x=(i/len)*w,v=(wave[i]-128)/128,y=h/2-v*h*0.42*(1+low*0.5); i?sctx.lineTo(x,y):sctx.moveTo(x,y);} sctx.stroke();
+  sctx.globalCompositeOperation='source-over';
+  if(frameN%6===0){ keyLblEl.textContent=cen.note; keyLblEl.style.color=pc(hue,90,65,1); }
+}
+// ===== ESTADO: guardar / restaurar ajustes y looks =====
+const LOOK_EXCLUDE=['GAIN','AGC','SMOOTH','QUALITY','AUTO_ON','AUTO_INTERVAL','AUTO_SMOOTH','AUTO_CHANGEMODE'];
+function getState(){
+  return { vizIdx, OVERLAY, OVERLAY_OP, OVERLAY_BLEND, SEGMENTS, AUTOSEG, GRID, GRIDMIRROR, GAIN, AGC, SMOOTH, STROBE,
+    SCOPE_PATH, SCOPE_LOBES, SCOPE_DENSITY, SCOPE_SPREAD, ROSE_PETALS, ROSE_RINGS, ROSE_SPIN,
+    XY_HUE, XY_RATIO, XY_RATIO_Y, XY_SHAPE, XY_GLOW, XY_GRID, XY_ROT, KALEIDO_ON,
+    FEEDBACK, FEEDBACK_ZOOM, FEEDBACK_ROT, BLOOM, GLOBAL_VIG, WHITE_GUARD,
+    STROBE_SHAPE, STROBE_LAYOUT, STROBE_DENSITY, STROBE_FILL, STROBE_SPIN,
+    VHS:{...VHS}, FX:{...FX}, COLORMODE, fixedHues:fixedHues.slice(), fixedSat, PALETTE_LOCK, activePreset,
+    AUTO_ON, AUTO_INTERVAL, AUTO_SMOOTH, AUTO_CHANGEMODE, QUALITY };
+}
+// valida cada campo: lo que falte o venga roto se queda como está
+function setState(s){
+  if(!s||typeof s!=='object') return;
+  const num=(k,lo,hi,cur,int)=>{ const v=s[k]; if(typeof v!=='number'||!isFinite(v)) return cur; const c=Math.min(hi,Math.max(lo,v)); return int?Math.round(c):c; };
+  const bool=(k,cur)=> typeof s[k]==='boolean'? s[k] : cur;
+  const L=VIZ.length-1;
+  vizIdx=num('vizIdx',0,L,vizIdx,1); OVERLAY=num('OVERLAY',-1,L,OVERLAY,1); OVERLAY_OP=num('OVERLAY_OP',0.1,1,OVERLAY_OP);
+  if(OV_BLENDS.includes(s.OVERLAY_BLEND)) OVERLAY_BLEND=s.OVERLAY_BLEND;
+  if(segOpts.includes(s.SEGMENTS)) SEGMENTS=s.SEGMENTS; AUTOSEG=bool('AUTOSEG',AUTOSEG);
+  GRID=num('GRID',1,32,GRID,1); GRIDMIRROR=bool('GRIDMIRROR',GRIDMIRROR);
+  GAIN=num('GAIN',0.1,3,GAIN); AGC=bool('AGC',AGC); SMOOTH=num('SMOOTH',0,0.95,SMOOTH); STROBE=num('STROBE',0,3,STROBE,1);
+  SCOPE_PATH=num('SCOPE_PATH',0,2,SCOPE_PATH,1); SCOPE_LOBES=num('SCOPE_LOBES',2,16,SCOPE_LOBES); SCOPE_DENSITY=num('SCOPE_DENSITY',1,10,SCOPE_DENSITY,1); SCOPE_SPREAD=num('SCOPE_SPREAD',0,1,SCOPE_SPREAD);
+  ROSE_PETALS=num('ROSE_PETALS',8,32,ROSE_PETALS,1); ROSE_RINGS=num('ROSE_RINGS',2,8,ROSE_RINGS,1); ROSE_SPIN=num('ROSE_SPIN',0,4,ROSE_SPIN);
+  XY_HUE=num('XY_HUE',0,360,XY_HUE); XY_RATIO=num('XY_RATIO',1,8,XY_RATIO); XY_RATIO_Y=num('XY_RATIO_Y',1,8,XY_RATIO_Y);
+  XY_SHAPE=num('XY_SHAPE',0,1,XY_SHAPE); XY_GLOW=num('XY_GLOW',0,1,XY_GLOW); XY_ROT=num('XY_ROT',0,2,XY_ROT); XY_GRID=bool('XY_GRID',XY_GRID);
+  KALEIDO_ON=bool('KALEIDO_ON',KALEIDO_ON);
+  FEEDBACK=num('FEEDBACK',0,0.95,FEEDBACK); FEEDBACK_ZOOM=num('FEEDBACK_ZOOM',-1,1,FEEDBACK_ZOOM); FEEDBACK_ROT=num('FEEDBACK_ROT',-2,2,FEEDBACK_ROT);
+  BLOOM=num('BLOOM',0,1.5,BLOOM); GLOBAL_VIG=num('GLOBAL_VIG',0,1,GLOBAL_VIG); WHITE_GUARD=num('WHITE_GUARD',0,1,WHITE_GUARD);
+  STROBE_SHAPE=num('STROBE_SHAPE',0,STROBE_SHAPE_NAMES.length-1,STROBE_SHAPE,1); STROBE_LAYOUT=num('STROBE_LAYOUT',0,STROBE_LAYOUT_NAMES.length-1,STROBE_LAYOUT,1);
+  STROBE_DENSITY=num('STROBE_DENSITY',1,80,STROBE_DENSITY,1); STROBE_FILL=bool('STROBE_FILL',STROBE_FILL); STROBE_SPIN=num('STROBE_SPIN',0,3,STROBE_SPIN);
+  if(s.VHS&&typeof s.VHS==='object'){ for(const k in VHS){ const v=s.VHS[k]; if(typeof VHS[k]==='boolean'?typeof v==='boolean':(typeof v==='number'&&isFinite(v))) VHS[k]=typeof v==='number'?Math.min(1,Math.max(0,v)):v; } }
+  if(s.FX&&typeof s.FX==='object'){ for(const k in FX){ if(typeof s.FX[k]==='boolean') FX[k]=s.FX[k]; } }
+  if(s.COLORMODE==='random'||s.COLORMODE==='fixed') COLORMODE=s.COLORMODE;
+  if(Array.isArray(s.fixedHues)){ const hs=s.fixedHues.filter(h=>typeof h==='number'&&isFinite(h)).slice(0,10).map(h=>((h%360)+360)%360); if(hs.length) fixedHues=hs; }
+  fixedSat=num('fixedSat',0,100,fixedSat); PALETTE_LOCK=num('PALETTE_LOCK',0,1,PALETTE_LOCK);
+  activePreset=(typeof s.activePreset==='string'&&PRESETS[s.activePreset])? s.activePreset : null;
+  AUTO_ON=bool('AUTO_ON',AUTO_ON); AUTO_INTERVAL=num('AUTO_INTERVAL',2,30,AUTO_INTERVAL,1); AUTO_SMOOTH=num('AUTO_SMOOTH',0.005,0.2,AUTO_SMOOTH); AUTO_CHANGEMODE=bool('AUTO_CHANGEMODE',AUTO_CHANGEMODE);
+  if(QUALITY_OPTS.includes(s.QUALITY)) QUALITY=s.QUALITY;
+}
+// aplica el estado a lo que depende de él (paleta, analizador, cachés, panel)
+function applyState(){
+  if(analyser) analyser.smoothingTimeConstant=SMOOTH;
+  gVigCanvas=null; renderCustom(); jumpColors(); resize(); syncPanelUI(); updateContextSections();
+}
+// v2: la sesión guardada de la v9 traía bloom alto e invert activado; se arranca con los valores nuevos
+// (los looks guardados se conservan)
+const SET_KEY='supvisions.settings.v2', LOOKS_KEY='supvisions.looks.v1';
+const store={
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+};
+const DEFAULTS=getState();
+// guarda los ajustes cada 2 s si cambiaron (sin tocar el código de cada control)
+let lastSaved='';
+setInterval(()=>{ const j=JSON.stringify(getState()); if(j!==lastSaved){ lastSaved=j; store.set(SET_KEY,getState()); } },2000);
+
+// looks: 4 memorias de escena
+let looks=[null,null,null,null], lookArm=false;
+{ const l=store.get(LOOKS_KEY); if(Array.isArray(l)) for(let i=0;i<4;i++) looks[i]=(l[i]&&typeof l[i]==='object')?l[i]:null; }
+const lookRow=document.getElementById('lookRow'), lookSaveBtn=document.getElementById('lookSave');
+function renderLooks(){
+  lookRow.innerHTML='';
+  looks.forEach((lk,i)=>{
+    const b=document.createElement('div'); b.className='opt'+(lk?' filled':'')+(lookArm?' armed':'');
+    b.textContent=(i+1)+' · '+(lk? VIZ[lk.vizIdx]||'look' : 'vacío');
+    b.onclick=()=>{ if(lookArm||!lk) saveLook(i); else recallLook(i); };
+    lookRow.appendChild(b);
+  });
+  lookSaveBtn.classList.toggle('armed',lookArm);
+  lookSaveBtn.textContent=lookArm?'elige una memoria… (toca aquí para cancelar)':'💾 guardar look en…';
+}
+function saveLook(i){
+  const st=getState(); LOOK_EXCLUDE.forEach(k=>delete st[k]);
+  looks[i]=st; lookArm=false; store.set(LOOKS_KEY,looks); renderLooks(); toast('look guardado en '+(i+1));
+}
+function recallLook(i){
+  if(!looks[i]){ toast('memoria '+(i+1)+' vacía'); return; }
+  setState(looks[i]); applyState(); modeFade=1; toast('look '+(i+1)+' · '+VIZ[vizIdx]);
+}
+lookSaveBtn.onclick=()=>{ lookArm=!lookArm; renderLooks(); };
+renderLooks();
+
+// calidad de render
+const qualRow=document.getElementById('qualRow');
+QUALITY_OPTS.forEach(q=>{ const b=document.createElement('div'); b.className='opt'; b.textContent=q;
+  b.onclick=()=>{ QUALITY=q; if(q==='auto') autoScale=1; slowSecs=0; resize(); syncPanelUI(); }; qualRow.appendChild(b); });
+
+// restaurar la última sesión
+setState(store.get(SET_KEY));
+AUTO_ON=false; // el auto-vj no arranca solo al abrir; se activa a mano (o con 'a')
+applyState();
+lastSaved=JSON.stringify(getState());
+
+setInterval(()=>{ document.getElementById('tName').style.color=pc(palette.hues[0],90,65,1); },1300);
+</script>
+</body>
+</html>

@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23030706%27/%3E%3Ctext x=%2732%27 y=%2745%27 font-family=%27Arial Black,Arial%27 font-weight=%27900%27 font-size=%2738%27 text-anchor=%27middle%27 fill=%27%233BE0A5%27%3EG%3C/text%3E%3C/svg%3E">
+<title>Gonzalo LLM — Portfolio</title>
+<meta name="description" content="Portfolio de Gonzalo Llinares: marketing, diseño, fotografía, 3D e IA. Creador de la marca de ropa GET A LIFE.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Caveat:wght@500;600&family=Inter:ital,wght@0,100..900;1,100..900&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/tema.css">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<style>
+  /* ---------- PORTADA (en negro; las fotos van apareciendo detrás) ---------- */
+  .hero { position: relative; height: 100vh; min-height: 620px; }
+  .hero .intro { position: absolute; z-index: 3; left: 22px; top: calc(15vh + 15vw); max-width: 500px; padding: 20px 22px; }
+  .hero .intro p { font: 400 17px/1.45 Inter, sans-serif; }
+  .hero .intro p em { color: var(--emerald-2); font-style: normal; font-weight: 600; }
+  .hero .intro .chips { margin-top: 14px; }
+  .hero .scrollhint { position: absolute; z-index: 3; right: 26px; top: calc(15vh + 15vw + 10px); text-align: right; color: var(--muted); }
+  .hero .scrollhint b { display: block; font: italic 200 clamp(28px,3.6vw,52px)/1.05 Inter, sans-serif; color: rgba(255,255,255,.06); -webkit-text-stroke: 1px rgba(255,255,255,.85); text-transform: none; letter-spacing: -.01em; margin-top: 6px; }
+  .hero .foot { position: absolute; z-index: 3; bottom: 18px; left: 18px; right: 18px; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 18px; border-radius: 999px; }
+
+  /* ---------- 01 DEL VECTOR A LA PRENDA (capas) ---------- */
+  .capas { height: 520vh; }
+  .capas .stage { position: sticky; top: 0; height: 100vh; display: grid; grid-template-columns: 1.3fr 1fr; gap: 22px; align-items: center; padding: 120px 4vw 30px; }
+  .capas .lbl { position: absolute; top: 86px; left: 22px; display: flex; gap: 40px; align-items: baseline; }
+  .capas .lbl i { font: italic 300 14px Inter, sans-serif; color: var(--emerald-2); }
+  .capas .lbl .tag { color: var(--muted); }
+  .capas .stage-d { height: 70vh; padding: 3vh 3vw; }
+  .capas .stack { position: relative; width: 100%; height: 100%; }
+  .capas .stack img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transform: translateY(14px) scale(.98); transition: opacity .4s, transform .4s; filter: drop-shadow(0 10px 18px rgba(0,0,0,.25)); }
+  .capas .stack img.on { opacity: 1; transform: none; }
+  .capas .steplabel { position: absolute; left: 14px; top: 14px; z-index: 2; color: var(--ink); }
+  .capas .card { padding: 24px; }
+  .capas .card h3 { font: 800 clamp(22px,2.4vw,32px)/1 Archivo, sans-serif; font-stretch: 112%; margin-top: 10px; }
+  .capas .meta { color: var(--muted); margin-top: 6px; }
+  .capas .count { font: 200 clamp(48px,6vw,90px)/.9 Inter, sans-serif; letter-spacing: -.04em; margin-top: 12px; }
+  .capas .count b { font-weight: 800; color: var(--emerald-2); }
+  .capas p { font: 400 15px/1.5 Inter, sans-serif; margin: 12px 0 16px; max-width: 38ch; }
+  .bar { height: 3px; border-radius: 3px; background: rgba(255,255,255,.18); position: relative; margin-bottom: 14px; overflow: hidden; }
+  .bar span { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, var(--emerald), var(--emerald-2)); width: 0; transition: width .3s; }
+
+  /* ---------- 02 ARCHIVO (carrusel de diseños definitivos) ---------- */
+  .archivo-c { padding: 30px 0; }
+  .archivo-c .row-d { gap: 64px; }
+  .archivo-c .row-d img { height: 170px; max-width: 260px; }
+  .archivo-nota { display: flex; justify-content: space-between; gap: 12px; margin: 12px 6px 0; color: var(--muted); }
+
+  /* ---------- 09 GET A LIFE (la marca) ---------- */
+  .marca-head { padding: 30px 30px 26px; overflow: hidden; }
+  .marca-head .wm { white-space: nowrap; font: 900 11vw/.85 Archivo, sans-serif; font-stretch: 125%; letter-spacing: -.03em; color: transparent;
+    -webkit-text-stroke: 1.5px rgba(255,255,255,.92); text-shadow: none;
+    background: linear-gradient(100deg, transparent 35%, rgba(59,224,165,.7) 50%, transparent 65%); background-size: 260% 100%;
+    -webkit-background-clip: text; background-clip: text; animation: brillo 7s linear infinite; }
+  @keyframes brillo { from { background-position: 160% 0; } to { background-position: -60% 0; } }
+  .marca-head .lema { font: 600 clamp(28px,3.4vw,48px)/1 Caveat, cursive; color: var(--emerald-2); text-align: right; margin-top: 4px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 20px; border-top: 1px solid rgba(255,255,255,.16); }
+  .stats div { padding: 18px 18px 0; border-left: 1px solid rgba(255,255,255,.16); }
+  .stats div:first-child { border-left: 0; padding-left: 0; }
+  .stats b { display: block; font: 800 clamp(34px,4.4vw,62px)/1 Archivo, sans-serif; font-stretch: 112%; }
+  .stats span { display: block; margin-top: 6px; color: var(--muted); font: 400 13px/1.4 Inter, sans-serif; }
+  .brand { display: grid; grid-template-columns: 1.15fr 1fr; gap: 22px; align-items: stretch; margin-top: 22px; }
+  .tv { transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .25s ease-out; }
+  .tv::after { content: ""; position: absolute; inset: 8%; z-index: -1; border-radius: 40px; background: radial-gradient(closest-side, rgba(59,224,165,.45), transparent); filter: blur(46px); }
+  .colecciones { margin-top: 18px; }
+  .years { margin-top: 22px; padding: 22px 24px; }
+  .years .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .years .panel { display: grid; grid-template-columns: 1fr 2fr; gap: 26px; align-items: center; margin-top: 20px; min-height: 210px; }
+  .years .panel h4 { font: 800 clamp(52px,7vw,104px)/.9 Archivo, sans-serif; font-stretch: 112%; color: var(--emerald-2); }
+  .years .panel p { font: 400 16px/1.5 Inter, sans-serif; margin-top: 12px; max-width: 34ch; }
+  .years .thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .years .thumbs div { aspect-ratio: 1; border-radius: 18px; display: grid; place-items: center; padding: 12px;
+    background: linear-gradient(135deg, rgba(255,255,255,.34), rgba(255,255,255,.2)); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 10px 24px rgba(0,0,0,.25); opacity: 0; transform: translateY(14px) scale(.94); transition: opacity .45s, transform .5s cubic-bezier(.2,.8,.2,1); }
+  .years .thumbs div.on { opacity: 1; transform: none; }
+  .years .thumbs img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,.3)); }
+  .filtros { display: flex; gap: 8px; flex-wrap: wrap; }
+  .brand .statement { padding: 36px; display: flex; flex-direction: column; justify-content: center; }
+  .statement p { font: 400 clamp(20px,2.3vw,30px)/1.18 Inter, sans-serif; letter-spacing: -.01em; }
+  .statement em { color: var(--emerald-2); font-style: italic; font-weight: 300; }
+  .statement .tag { color: var(--muted); margin-top: 22px; line-height: 1.7; }
+  .statement .big-ig { align-self: flex-start; margin-top: 16px; font: 500 clamp(18px,2vw,24px)/1 Inter, sans-serif; padding: 14px 22px; }
+  .tv { padding: 16px 16px 14px; }
+  .tv .screen { position: relative; aspect-ratio: 4/3; border-radius: 26px / 30px; overflow: hidden; background: #0d0f0e; box-shadow: inset 0 0 0 2px rgba(255,255,255,.08), 0 0 0 6px rgba(0,0,0,.35); }
+  .tv #tvcv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  /* Reflejo del cristal curvo del CRT (la viñeta ya la pinta el canvas) */
+  .tv .screen::after { content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none; border-radius: inherit;
+    background: radial-gradient(ellipse 70% 45% at 40% 22%, rgba(255,255,255,.12), transparent 70%); box-shadow: inset 0 0 60px rgba(0,0,0,.6); }
+  .tv .mid { left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 34px; opacity: 0; transition: opacity .1s; }
+  .tv .osd { position: absolute; z-index: 5; font: 26px/1 VT323, monospace; color: #eafff5; letter-spacing: .04em; text-shadow: 2px 0 rgba(255,0,70,.55), -2px 0 rgba(0,210,255,.55), 0 0 8px rgba(255,255,255,.35); }
+  .tv .tl { top: 16px; left: 22px; } .tv .tr { top: 16px; right: 22px; } .tv .bl { bottom: 16px; left: 22px; font-size: 20px; } .tv .br { bottom: 16px; right: 22px; font-size: 20px; }
+  .tv .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding: 0 4px; }
+  .tv .controls .tag { font: 20px/1 VT323, monospace; letter-spacing: .06em; color: var(--muted); }
+  .subhead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 40px 4px 0; }
+  .subhead h3 { font: 800 clamp(20px,2.4vw,30px)/1 Archivo, sans-serif; font-stretch: 112%; text-shadow: 0 2px 16px rgba(0,0,0,.6); }
+  .subhead .tag { color: var(--muted); }
+  .rail { display: flex; gap: 22px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 18px 4px 14px; scrollbar-width: thin; }
+  .rail figure { flex: 0 0 auto; width: 320px; scroll-snap-align: start; padding: 18px;
+    transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .25s ease-out; }
+  .rail figure.oculto { display: none; }
+  .rail img { width: 100%; height: 300px; object-fit: contain; filter: drop-shadow(0 14px 20px rgba(0,0,0,.4)); transition: transform .4s; }
+  .rail figure:hover img { transform: scale(1.06); }
+  .rail figcaption { margin-top: 10px; }
+  .rail figcaption b { display: block; font: 600 14px Inter, sans-serif; }
+  .rail figcaption span { color: var(--muted); }
+
+  /* ---------- 03 3D ---------- */
+  .tres { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; }
+  .viewer { height: 78vh; min-height: 440px; overflow: hidden; cursor: grab; }
+  .viewer:active { cursor: grabbing; }
+  .viewer .spot { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: radial-gradient(closest-side at 50% 50%, rgba(0,0,0,.78), rgba(0,0,0,.5) 60%, rgba(0,0,0,.15)); }
+  .viewer canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; border-radius: inherit; z-index: 1; }
+  .viewer .big3d { position: absolute; z-index: 2; top: 18px; left: 26px; font: italic 200 clamp(48px,8vw,130px)/1 Inter, sans-serif; color: rgba(255,255,255,.05); -webkit-text-stroke: 1.2px rgba(255,255,255,.9); pointer-events: none; }
+  .viewer .hud { position: absolute; z-index: 2; left: 18px; right: 18px; bottom: 18px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; pointer-events: none; }
+  .viewer .hud > * { pointer-events: auto; }
+  .viewer .loading { position: absolute; z-index: 2; inset: 0; display: grid; place-items: center; color: var(--muted); pointer-events: none; }
+  .tres .info { padding: 26px; display: flex; flex-direction: column; gap: 14px; }
+  .tres .info h3 { font: 800 26px/1 Archivo, sans-serif; font-stretch: 112%; }
+  .tres .info p { font: 400 15px/1.5 Inter, sans-serif; }
+  .tres .info .meta { color: var(--muted); }
+
+  /* ---------- 04 CLIENTES ---------- */
+  .clients { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .client { padding: 14px 14px 22px; }
+  .client .img { position: relative; aspect-ratio: 4/5; border-radius: 18px; overflow: hidden; }
+  .client .img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 9%; transition: opacity .45s, transform .6s; filter: drop-shadow(0 10px 16px rgba(0,0,0,.25)); }
+  .client .img img.cover { object-fit: cover; padding: 0; filter: none; }
+  .client .img .b { opacity: 0; transform: scale(1.03); }
+  .client:hover .img .a { opacity: 0; transform: scale(.97); }
+  .client:hover .img .b { opacity: 1; transform: none; }
+  .client h3 { font: 800 clamp(20px,2.4vw,30px)/1 Archivo, sans-serif; font-stretch: 112%; margin: 16px 6px 0; }
+  .client .tag { color: var(--muted); margin: 8px 6px 0; }
+  .client .what { font: 400 15px/1.45 Inter, sans-serif; margin: 10px 6px 0; }
+  .client .what.todo { color: var(--emerald-2); font-style: italic; }
+  .client .chips { margin: 12px 6px 0; }
+  .client .hover-hint { position: absolute; right: 10px; bottom: 10px; z-index: 2; font-size: 9px; padding: 6px 10px; }
+
+  /* ---------- 05 CARRETE (después del diseño) ---------- */
+  .reel { height: 300vh; }
+  .reel .stage { position: sticky; top: 0; height: 100vh; overflow: hidden; display: grid; place-items: center; text-align: center; }
+  .reel .lbl { position: absolute; top: 86px; left: 22px; display: flex; gap: 40px; align-items: baseline; }
+  .reel .lbl i { font: italic 300 14px Inter, sans-serif; color: var(--emerald-2); }
+  .reel .lbl .tag { color: var(--muted); }
+  .reel a.outline { display: block; transition: color .3s, -webkit-text-stroke-color .3s; }
+  .reel a.outline:hover { color: rgba(59,224,165,.25); -webkit-text-stroke-color: var(--emerald-2); }
+  .reel .glass.cap { display: inline-block; margin-top: 14px; font: italic 500 14px/1.5 Inter, sans-serif; padding: 12px 18px; border-radius: 20px; max-width: 460px; }
+  .reel .cta { margin-top: 18px; opacity: 0; transition: opacity .4s; }
+  .reel .cta a { font: 500 16px Inter, sans-serif; padding: 13px 22px; margin: 4px; }
+
+  /* ---------- 06 LAB ---------- */
+  .rows { padding: 6px 26px; }
+  .row { display: grid; grid-template-columns: 60px 1fr 1.3fr 30px; gap: 16px; align-items: start; padding: 26px 0; border-top: 1px solid rgba(255,255,255,.16); }
+  .row:first-child { border-top: 0; }
+  .row .n { font: italic 300 14px Inter, sans-serif; color: var(--emerald-2); padding-top: 6px; }
+  .row h4 { font: 400 clamp(22px,3vw,40px)/1 Inter, sans-serif; letter-spacing: -.02em; text-transform: uppercase; }
+  .row p { font: 400 15px/1.5 Inter, sans-serif; }
+  .row .chips { margin-top: 12px; }
+  .row .live { color: var(--emerald-2); font-weight: 600; }
+  .row:hover h4 { color: var(--emerald-2); }
+
+  /* ---------- 07 SOBRE MÍ ---------- */
+  .about { display: grid; grid-template-columns: 1fr 1.6fr; gap: 22px; align-items: stretch; }
+  .about .pol { display: grid; place-items: center; padding: 36px; }
+  .about .pol figure { width: min(320px, 90%); padding: 12px 12px 54px; transform: rotate(2.5deg); border-radius: 14px; position: relative; }
+  .about .pol img { width: 100%; aspect-ratio: 4/5; object-fit: cover; border-radius: 6px; }
+  .about .pol figcaption { position: absolute; bottom: 12px; left: 0; right: 0; text-align: center; font: 600 26px Caveat, cursive; }
+  .about .txt { padding: 34px; }
+  .about .txt > p { font: 400 clamp(18px,1.8vw,22px)/1.4 Inter, sans-serif; margin-bottom: 22px; }
+  .about em { color: var(--emerald-2); font-style: normal; font-weight: 600; }
+  .cvgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 30px; }
+  .cvgrid h5 { color: var(--emerald-2); margin-bottom: 8px; }
+  .cvgrid li { list-style: none; font: 400 14px/1.45 Inter, sans-serif; padding: 6px 0; border-top: 1px solid rgba(255,255,255,.12); }
+  .cvgrid li span { display: block; color: var(--muted); font-size: 12px; }
+  .about .cv-btn { display: inline-flex; margin-top: 22px; font-size: 11px; padding: 14px 22px; }
+
+  /* ---------- 08 CONTACTO ---------- */
+  .contact { padding: 10px 26px 26px; }
+  .contact .pitch { font: italic 300 clamp(22px,2.8vw,36px)/1.2 Inter, sans-serif; max-width: 24ch; margin: 40px 0 40px auto; }
+  .contact .links a { display: grid; grid-template-columns: 140px 1fr 30px; align-items: center; padding: 20px 0; border-top: 1px solid rgba(255,255,255,.18); }
+  .contact .links .tag { color: var(--muted); }
+  .contact .links b { font: 400 clamp(20px,3.4vw,44px)/1.05 Inter, sans-serif; letter-spacing: -.02em; text-transform: uppercase; word-break: break-all; }
+  .contact .links a:hover b { color: var(--emerald-2); }
+
+  @media (max-width: 760px) {
+    .hero .intro { right: 14px; left: 14px; top: calc(15vh + 17vw); }
+    .hero .intro p { font-size: 15px; }
+    .hero .scrollhint { display: none; }
+    .hero .foot { flex-direction: column; gap: 4px; border-radius: 22px; text-align: center; }
+    .capas .stage { grid-template-columns: 1fr; grid-template-rows: 40vh auto; padding: 116px 12px 12px; gap: 10px; }
+    .capas .stage-d { height: 40vh; }
+    .capas .card { padding: 14px; }
+    .capas .count { font-size: 44px; }
+    .capas p { font-size: 13px; margin: 6px 0 10px; }
+    .brand, .about, .tres, .cvgrid { grid-template-columns: 1fr; }
+    .tv .osd { font-size: 18px; } .tv .bl, .tv .br { font-size: 15px; }
+    .archivo-c .row-d img { height: 110px; }
+    .marca-head { padding: 20px 16px; }
+    .marca-head .wm { font-size: 12.5vw; }
+    .stats { grid-template-columns: 1fr 1fr; }
+    .stats div:nth-child(3) { border-left: 0; padding-left: 0; }
+    .years .panel { grid-template-columns: 1fr; }
+    .years .thumbs { grid-template-columns: repeat(3, 1fr); }
+    .rail figure { width: 250px; } .rail img { height: 220px; }
+    .clients { grid-template-columns: 1fr; }
+    .viewer { height: 64vh; }
+    .row { grid-template-columns: 36px 1fr 24px; }
+    .row > div { grid-column: 2 / 3; }
+    .contact .links a { grid-template-columns: 1fr 24px; }
+    .contact .links .tag { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+
+<header class="glass">
+  <a class="wordmark" href="index.html">GONZALO LLM</a>
+  <nav>
+    <a href="#capas">DISEÑO</a><a href="#archivo">ARCHIVO</a><a href="#tresde">3D</a><a href="#clientes">CLIENTES</a><a href="fotos.html">FOTOS</a><a href="#lab">IA</a><a href="cv.html">CV</a><a href="#contacto">CONTACTO</a><a href="#getalife">GET A LIFE</a>
+  </nav>
+  <a class="ig glass em pill" href="https://instagram.com/getalife.plz" target="_blank">@GETALIFE.PLZ ↗</a>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="name"><span>GONZALO</span></div>
+  <div class="intro glass">
+    <p>Graduado en <em>ADE + Marketing</em>. Diseño mi propia marca de ropa, <em>GET A LIFE</em>: logos, gráficos, mockups y 3D. También hago fotos en cada viaje y construyo herramientas con IA.</p>
+    <div class="chips">
+      <span class="chip">+150 diseños</span><span class="chip">3D</span><span class="chip">3 clientes</span><span class="chip">426 fotos</span><span class="chip">4 proyectos con IA</span>
+    </div>
+  </div>
+  <div class="scrollhint tag">Baja despacio<b>y mira cómo nace<br>un diseño ↓</b></div>
+  <div class="foot glass">
+    <span class="tag">Todo el contenido de esta web lo he creado yo: fotos, diseños, mockups y 3D</span>
+    <span class="tag">Marketing · Diseño · 3D · Fotografía</span>
+  </div>
+</section>
+
+<!-- 01 DEL VECTOR A LA PRENDA -->
+<section class="capas" id="capas">
+  <div class="stage">
+    <div class="lbl"><i>01</i><span class="tag">Get a Life · del vector a la prenda</span></div>
+    <div class="stage-d glass light"><span class="steplabel tag glass light pill" id="steplabel">Capa 1</span><div class="stack" id="stack"></div></div>
+    <div class="card glass">
+      <div class="tag" style="color:var(--muted)">Así nace un diseño · baja para montarlo</div>
+      <h3 id="dname"></h3>
+      <div class="tag meta" id="dmeta"></div>
+      <div class="count"><b id="cur">01</b>/<span id="tot">06</span></div>
+      <p id="ddesc"></p>
+      <div class="bar"><span id="bar"></span></div>
+      <div class="pick" id="pick"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 ARCHIVO: carrusel con la última versión de cada diseño -->
+<section id="archivo">
+  <div class="label-row"><i>02</i><span class="tag">Archivo · diseños definitivos</span><h2>ARCHIVO</h2></div>
+  <div class="wrap">
+    <div class="archivo-c glass light" id="carrusel" data-rev></div>
+    <div class="archivo-nota"><span class="tag" id="archivo-n">Solo la última versión de cada diseño</span><span class="tag">Pasa el ratón para parar</span></div>
+  </div>
+</section>
+
+<!-- 03 3D -->
+<section id="tresde">
+  <div class="label-row"><i>03</i><span class="tag">3D · juega con ellos</span><h2>3D</h2></div>
+  <div class="wrap">
+    <div class="tres" data-rev>
+      <div class="viewer glass" id="viewer">
+        <div class="spot"></div>
+        <div class="big3d">3D</div>
+        <div class="loading tag" id="loading">Cargando modelo…</div>
+        <div class="hud">
+          <div class="pick" id="pick3d"></div>
+          <div class="pick" id="pickmat"></div>
+          <span class="tag glass pill">Arrastra para girar · rueda o pellizca para acercar</span>
+        </div>
+      </div>
+      <div class="info glass">
+        <div class="tag meta">Modelo</div>
+        <h3 id="m3name"></h3>
+        <div class="tag meta" id="m3meta"></div>
+        <p id="m3desc"></p>
+        <p class="meta" style="font-size:13px">Los modelé en Illustrator (efectos 3D) y en Blender, y los exporté a OBJ. Cambia la textura para verlos en cromo, esmeralda u holográfico.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 CLIENTES -->
+<section id="clientes">
+  <div class="label-row"><i>04</i><span class="tag">Clientes</span><h2>CLIENTES</h2></div>
+  <div class="wrap">
+    <div class="clients">
+      <div class="client glass" data-rev>
+        <div class="img glass light"><img class="a" src="assets/media/c_zona_logo.png" alt="Logo de La Zona"><img class="b cover" src="assets/media/d_zona.jpg" alt="Camiseta de La Zona"><span class="hover-hint tag glass light pill">Pasa el ratón</span></div>
+        <h3>LA ZONA</h3><div class="tag">Eventos · Gandía · 2026</div>
+        <div class="what">Camisetas para sus eventos, con el logo de la copa de cóctel.</div>
+        <div class="chips"><span class="chip">Camisetas</span><span class="chip">Illustrator</span><span class="chip">Photoshop</span></div>
+      </div>
+      <div class="client glass" data-rev>
+        <div class="img glass light"><img class="a" src="assets/media/c_button_poster.jpg" alt="Póster Button x Sneaker Lane"><img class="b cover" src="assets/media/c_button_tee.jpg" alt="Camiseta de Button"><span class="hover-hint tag glass light pill">Pasa el ratón</span></div>
+        <h3>BUTTON</h3><div class="tag">Mobiliario · 2024</div>
+        <div class="what">Camisetas y un póster con Sneaker Lane.</div>
+        <div class="chips"><span class="chip">Camisetas</span><span class="chip">Póster</span><span class="chip">Colaboración</span></div>
+      </div>
+      <div class="client glass" data-rev>
+        <div class="img glass light"><img class="a" src="assets/media/d_coast.png" alt="Diseño para Coast Cloth"><img class="b" src="assets/media/d_coast2.png" alt="Diseño para Coast Cloth"><span class="hover-hint tag glass light pill">Pasa el ratón</span></div>
+        <h3>COAST CLOTH</h3><div class="tag">Ropa · 2024</div>
+        <div class="what">Diseños para la marca de ropa.</div>
+        <div class="chips"><span class="chip">Diseño gráfico</span><span class="chip">Photoshop</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 CARRETE: avance de la fotografía; las fotos completas están en fotos.html -->
+<section class="reel" id="carrete">
+  <div class="stage">
+    <div class="lbl"><i>05</i><span class="tag">Fotografía</span></div>
+    <div>
+      <a class="outline" href="fotos.html" title="Entrar al carrete">CARRETE</a>
+      <a class="glass cap" href="fotos.html">426 fotos de viajes, calle y gente: Chicago y Michigan, Berlín, París, Londres, Lisboa… Todas hechas por mí.</a>
+      <div class="cta" id="cta"><a class="glass em pill" href="fotos.html">Entrar al carrete →</a><a class="glass pill" href="https://vsco.co/gonzalo-llm" target="_blank">VSCO ↗</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 LAB -->
+<section id="lab">
+  <div class="label-row"><i>06</i><span class="tag">Lab · proyectos con IA</span><h2>LAB</h2></div>
+  <div class="wrap">
+    <div class="rows glass" data-rev>
+      <a class="row" href="lab/supvisions.html" target="_blank"><span class="n">6.1</span><h4>Supvisions</h4><div><p>Visualizador para raves en un solo archivo HTML. Escucha la música, detecta el tempo, el bombo y los drops, y genera visuales en directo. <span class="live">Pruébalo en directo</span></p><div class="chips"><span class="chip">Canvas</span><span class="chip">Web Audio</span><span class="chip">Claude</span></div></div><span>↗</span></a>
+      <div class="row"><span class="n">6.2</span><h4>Canal automático</h4><div><p>Un canal de YouTube de filosofía en castellano que publica un vídeo de más de 40 minutos al día. Investiga, escribe el guion, lo narra con voz sintética y monta el vídeo solo.</p><div class="chips"><span class="chip">Claude Code</span><span class="chip">Voz sintética</span><span class="chip">YouTube</span></div></div><span></span></div>
+      <div class="row"><span class="n">6.3</span><h4>Trading terminal</h4><div><p>Seis bots de inversión con dinero ficticio y una cuenta que vota por mayoría. Mezclan reglas cuantitativas con un modelo de IA local y las estrategias están probadas con 4 años de datos.</p><div class="chips"><span class="chip">Node.js</span><span class="chip">Ollama</span><span class="chip">Backtesting</span></div></div><span></span></div>
+      <div class="row"><span class="n">6.4</span><h4>JobBot</h4><div><p>Mi buscador de empleo: lee ofertas de decenas de portales, las puntúa con mi CV, prepara las cartas y me deja aprobar cada envío. Tiene una interfaz al estilo macOS.</p><div class="chips"><span class="chip">Node.js</span><span class="chip">Claude</span><span class="chip">Ollama</span></div></div><span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 07 SOBRE MÍ -->
+<section id="sobre">
+  <div class="label-row"><i>07</i><span class="tag">Sobre mí</span><h2>SOBRE MÍ</h2></div>
+  <div class="wrap">
+    <div class="about" data-rev>
+      <div class="pol glass"><figure class="glass light"><img src="assets/media/f_about.jpg" alt="Gonzalo"><figcaption>yo, en algún acantilado</figcaption></figure></div>
+      <div class="txt glass">
+        <p>Soy Gonzalo. Me muevo entre el <em>marketing</em>, el <em>diseño</em> y la <em>tecnología</em>: hago la marca, la foto y la herramienta.</p>
+        <div class="cvgrid">
+          <div><h5 class="tag">Experiencia</h5><ul>
+            <li>Técnico en Gestión Comercial y Ventas · Moll Motor<span>Oct 2025 – hoy · 180 vehículos/mes de 14 marcas</span></li>
+            <li>Prácticas de agente comercial · Locatec<span>Jul – Sep 2023</span></li>
+            <li>Logística y almacén · Tecatel<span>Veranos 2020 y 2022</span></li>
+          </ul></div>
+          <div><h5 class="tag">Formación y logros</h5><ul>
+            <li>ADE + Marketing · CEU Cardenal Herrera<span>2019 – 2024</span></li>
+            <li>2.º puesto, European Markstrat<span>Simulación de estrategia de marketing · Bucarest · 2024</span></li>
+            <li>BrandY (Erasmus+)<span>Creación de una marca de moda con un equipo internacional · Brujas · 2023</span></li>
+            <li>Bachillerato en EE. UU. · Spring Lake High School<span>2017 – 2018</span></li>
+          </ul></div>
+          <div><h5 class="tag">Herramientas</h5><div class="chips"><span class="chip">Illustrator</span><span class="chip">Photoshop</span><span class="chip">Premiere Pro</span><span class="chip">Blender</span><span class="chip">Shopify</span><span class="chip">WooCommerce</span><span class="chip">Claude Code</span><span class="chip">Excel</span></div></div>
+          <div><h5 class="tag">Idiomas</h5><ul><li>Castellano y valenciano<span>Nativo</span></li><li>Inglés<span>C1 (TOEFL)</span></li></ul></div>
+        </div>
+        <a class="btn em cv-btn" href="cv.html">Ver mi currículum completo ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 CONTACTO -->
+<section id="contacto">
+  <div class="label-row"><i>08</i><span class="tag">Contacto</span><h2>CONTACTO</h2></div>
+  <div class="wrap">
+    <div class="contact glass" data-rev>
+      <p class="pitch">Si tienes una marca, un producto o una idea que necesita verse bien, escríbeme.</p>
+      <div class="links">
+        <a href="mailto:gonzalo.llm01@gmail.com"><span class="tag">Email</span><b>gonzalo.llm01@gmail.com</b><span>↗</span></a>
+        <a href="https://instagram.com/gonzalo.llm" target="_blank"><span class="tag">Instagram</span><b>@gonzalo.llm</b><span>↗</span></a>
+        <a href="https://instagram.com/getalife.plz" target="_blank"><span class="tag">Get a Life</span><b>@getalife.plz</b><span>↗</span></a>
+        <a href="https://vsco.co/gonzalo-llm" target="_blank"><span class="tag">VSCO</span><b>vsco.co/gonzalo-llm</b><span>↗</span></a>
+        <a href="https://www.linkedin.com/in/gonzalo-llinares-2a94a626a" target="_blank"><span class="tag">LinkedIn</span><b>Gonzalo Llinares</b><span>↗</span></a>
+        <a href="tel:+34672402496"><span class="tag">Teléfono</span><b>+34 672 40 24 96</b><span>↗</span></a>
+        <a href="cv.html"><span class="tag">CV</span><b>Ver currículum</b><span>↗</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 GET A LIFE: la marca, para cerrar -->
+<section id="getalife">
+  <div class="label-row"><i>09</i><span class="tag">Get a Life · la marca</span><h2>GET A LIFE</h2></div>
+  <div class="wrap">
+    <div class="marca-head glass" data-rev>
+      <div class="wm">GET A LIFE</div>
+      <div class="lema">only for a few.</div>
+      <div class="stats">
+        <div><b>2020</b><span>el año en que nació la marca</span></div>
+        <div><b id="n-dis">70</b><span>diseños definitivos en Illustrator</span></div>
+        <div><b>14</b><span>prendas en mockup: chaquetas, sudaderas y gorra</span></div>
+        <div><b>3</b><span>logos modelados en 3D</span></div>
+      </div>
+    </div>
+    <div class="brand" data-rev>
+      <div class="tv glass" id="tv">
+        <div class="screen" id="tvscreen">
+          <canvas id="tvcv" aria-label="Archivo de diseños GET A LIFE en una tele VHS"></canvas>
+          <div class="osd mid" id="tvtrack">TRACKING</div>
+          <div class="osd tl">PLAY ▶</div><div class="osd tr" id="tvch">CH 01</div>
+          <div class="osd bl" id="tvlabel">GETALIFE.ARCHIVE</div><div class="osd br" id="tvtime">SP 00:00:00</div>
+        </div>
+        <div class="controls"><button class="btn" id="tvprev">◀ CH</button><span class="tag" id="tvcount">001 / 070</span><button class="btn" id="tvnext">CH ▶</button></div>
+      </div>
+      <div class="statement glass">
+        <p><em>GET A LIFE</em> es mi marca de ropa. La creé en 2020 y la diseño de principio a fin: logos, gráficos, mockups, colecciones y piezas en 3D.</p>
+        <div class="tag">Colecciones</div>
+        <div class="chips colecciones"><span class="chip">Clubs</span><span class="chip">Casino &amp; Roulette</span><span class="chip">Angels</span><span class="chip">Logo árabe</span><span class="chip">Bass Pro</span><span class="chip">Baby Girl</span><span class="chip">Racing Team</span></div>
+        <div class="tag">La tele pasa sola por los diseños definitivos, sin repetir hasta verlos todos · Illustrator · Photoshop · Blender</div>
+        <a class="big-ig glass em pill" href="https://instagram.com/getalife.plz" target="_blank">@getalife.plz ↗</a>
+      </div>
+    </div>
+    <div class="years glass" data-rev>
+      <div class="tabs pick" id="tabs"></div>
+      <div class="panel">
+        <div><h4 id="y-anio"></h4><p id="y-txt"></p></div>
+        <div class="thumbs" id="y-thumbs"></div>
+      </div>
+    </div>
+    <div class="subhead" data-rev><h3>En prenda</h3><div class="filtros pick" id="filtros"></div></div>
+    <div class="rail" id="rail" data-rev></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="bar2 glass"><span class="tag">Fotos, diseños, mockups y 3D: todo creado por @gonzalo.llm · 2026</span><a class="tag" href="#top">Volver arriba ↑</a></div>
+</footer>
+
+<script src="assets/js/comun.js"></script>
+<script>
+// ---------- Inclinación 3D al pasar el ratón (tele y prendas) ----------
+function inclinar(el, fuerza = 8) {
+  el.addEventListener('mousemove', e => {
+    const r = el.getBoundingClientRect();
+    el.style.setProperty('--ry', `${((e.clientX - r.left) / r.width - .5) * fuerza}deg`);
+    el.style.setProperty('--rx', `${-((e.clientY - r.top) / r.height - .5) * fuerza}deg`);
+  });
+  el.addEventListener('mouseleave', () => { el.style.setProperty('--rx', '0deg'); el.style.setProperty('--ry', '0deg'); });
+}
+
+// ---------- Mockups en prenda, con filtros ----------
+const PRENDAS = [
+  ['casino', 'Casino & Roulette', 'Chaqueta técnica', 'Chaquetas'], ['jgreen', 'Casino & Roulette', 'Chaqueta técnica · azul y verde', 'Chaquetas'],
+  ['jblack', 'Chaqueta técnica', 'Negra', 'Chaquetas'], ['jplay', 'Playgirl', 'Chaqueta técnica', 'Chaquetas'],
+  ['track', 'Get a Life', 'Chaqueta de chándal · amarillo', 'Chaquetas'], ['coach', 'Get a Life', 'Chaqueta', 'Chaquetas'],
+  ['hnavy', 'Logo árabe', 'Sudaderas · navy', 'Sudaderas'], ['hgarab', 'Logo árabe', 'Sudaderas · verde', 'Sudaderas'], ['hbarab', 'Logo árabe', 'Sudaderas · negro', 'Sudaderas'],
+  ['holive', 'Bass Pro', 'Sudadera · oliva', 'Sudaderas'], ['hroolla', 'Get a Life', 'Sudadera · navy', 'Sudaderas'], ['hnavy2', 'Get a Life', 'Sudadera · navy', 'Sudaderas'],
+  ['hoods', 'Sudaderas', 'Tres colores', 'Sudaderas'], ['cap', 'Get a Life', 'Gorra · amarillo', 'Gorra'],
+];
+$('rail').innerHTML = PRENDAS.map(([f, t, s, tipo]) =>
+  `<figure class="glass" data-tipo="${tipo}"><img loading="lazy" src="${MEDIA}mk_${f}.png" alt="${t}"><figcaption><b>${t}</b><span class="tag">${s}</span></figcaption></figure>`).join('');
+$('rail').querySelectorAll('figure').forEach(f => inclinar(f, 10));
+['Todo', 'Chaquetas', 'Sudaderas', 'Gorra'].forEach((t, i) => {
+  const b = document.createElement('button'); b.textContent = t; if (!i) b.classList.add('sel');
+  b.onclick = () => {
+    $('filtros').querySelectorAll('button').forEach(x => x.classList.toggle('sel', x === b));
+    $('rail').querySelectorAll('figure').forEach(f => f.classList.toggle('oculto', t !== 'Todo' && f.dataset.tipo !== t));
+  };
+  $('filtros').appendChild(b);
+});
+inclinar($('tv'), 6);
+
+// ---------- 02 Archivo: carrusel de tres filas con la última versión de cada diseño ----------
+montarCarrusel($('carrusel'), 3).then(async () => {
+  const n = (await cargarArchivo()).length;
+  $('archivo-n').textContent = `${n} diseños definitivos · solo la última versión de cada uno`;
+  $('n-dis').textContent = n;
+});
+
+// ---------- La marca año a año, con sus diseños ----------
+const ANIOS = {
+  2020: { txt: 'Nace GET A LIFE con su primer logo, el «getalife» en letra de firma.', fijos: ['tv_141.png'] },
+  2021: { txt: 'Primeras camisetas: gráficos de pecho y espalda, y bordados.' },
+  2022: { txt: 'Más gráficos para camisetas y los primeros emblemas.' },
+  2023: { txt: 'Logos en 3D, Baby Girl, Bass Pro y las sudaderas árabe y navy.' },
+  2024: { txt: 'Los clubs (Racing, Yacht, Fishing, Fight, Country), Casino & Roulette, las chaquetas, Coast Cloth y Button.' },
+  2026: { txt: 'Camisetas para La Zona, en Gandía.', fijos: ['c_zona_logo.png'] },
+};
+(async () => {
+  const archivo = await cargarArchivo();
+  let elegido = '2024', tocado = false;
+  function mostrar(anio) {
+    elegido = anio;
+    $('tabs').querySelectorAll('button').forEach(b => b.classList.toggle('sel', b.textContent === anio));
+    $('y-anio').textContent = anio; $('y-txt').textContent = ANIOS[anio].txt;
+    const srcs = ANIOS[anio].fijos || barajar(archivo.filter(d => d.anio === anio)).slice(0, 8).map(d => `tv_${pad(d.id, 3)}.png`);
+    $('y-thumbs').innerHTML = srcs.map(s => `<div><img loading="lazy" src="${MEDIA}${s}" alt=""></div>`).join('');
+    [...$('y-thumbs').children].forEach((d, i) => setTimeout(() => d.classList.add('on'), 60 + i * 70));
+  }
+  Object.keys(ANIOS).forEach(a => { const b = document.createElement('button'); b.textContent = a; b.onclick = () => { tocado = true; mostrar(a); }; $('tabs').appendChild(b); });
+  mostrar(elegido);
+  // Si nadie toca, los años van pasando solos mientras la sección está en pantalla
+  let visible = false;
+  new IntersectionObserver(es => visible = es[0].isIntersecting).observe($('tabs').parentElement);
+  setInterval(() => { if (!visible || tocado) return; const ks = Object.keys(ANIOS); mostrar(ks[(ks.indexOf(elegido) + 1) % ks.length]); }, 5000);
+})();
+
+// ---------- Del vector a la prenda ----------
+const capa = (pre, n) => [...Array(n).keys()].map(k => ({ src: `${pre}_${k}.png`, tipo: 'capa' }));
+const DISENOS = {
+  'Casino & Roulette': { meta: '2024 · 8 capas en Illustrator', desc: 'El logo «Always Ready to Gamble» de la colección Casino, capa a capa, y después llevado a chaquetas técnicas con la ruleta.',
+    pasos: [...capa('lc48', 5), { src: 'mk_casino.png', tipo: 'prenda', label: 'En prenda' }, { src: 'mk_jgreen2.png', tipo: 'prenda', label: 'En prenda' }] },
+  'Logo Get a Life': { meta: '2024 · 9 capas en Illustrator', desc: 'El logo clásico de la marca: óvalo, letras y la cara. Primero en vector plano y después en versión 3D.',
+    pasos: [...capa('lc11', 4), { src: 'mk_logo3d1.png', tipo: 'prenda', label: 'Versión 3D' }, { src: 'mk_logo3d2.png', tipo: 'prenda', label: 'Versión 3D' }] },
+  'Get a Life global': { meta: '2024 · 11 capas en Illustrator', desc: 'El sello «International services · Only for a few»: el globo, el triángulo y el texto, capa a capa.',
+    pasos: capa('lc35', 6) },
+  'Angels': { meta: '2024 · 12 capas en Illustrator', desc: 'Ángeles con fajos de billetes, montados uno a uno y después en tres combinaciones de color con el texto.',
+    pasos: [...capa('lc22', 6), { src: 'mk_ang1.png', tipo: 'prenda', label: 'Variante' }, { src: 'mk_ang2.png', tipo: 'prenda', label: 'Variante' }] },
+  'Bass Pro': { meta: '2023 · Illustrator', desc: 'Parodia del logo de Bass Pro Shops con GET A LIFE, llevada a una sudadera oliva.',
+    pasos: [{ src: 'tp_091.png', tipo: 'capa' }, { src: 'mk_holive.png', tipo: 'prenda', label: 'En prenda' }] },
+  'Racing Team': { meta: '2024 · 16 capas en Illustrator', desc: 'Get a Life Racing Team: el coche, el piloto y las letras cromadas.',
+    pasos: capa('lc24', 3) },
+};
+const stack = $('stack'), pick = $('pick');
+let actual = null, imgs = [];
+function cargarDiseno(nombre) {
+  actual = DISENOS[nombre];
+  stack.innerHTML = '';
+  imgs = actual.pasos.map(p => { const i = new Image(); i.src = MEDIA + p.src; i.alt = ''; stack.appendChild(i); return i; });
+  $('dname').textContent = nombre; $('dmeta').textContent = actual.meta; $('ddesc').textContent = actual.desc;
+  $('tot').textContent = pad(imgs.length);
+  pick.querySelectorAll('button').forEach(b => b.classList.toggle('sel', b.textContent === nombre));
+  onScroll();
+}
+Object.keys(DISENOS).forEach(n => { const b = document.createElement('button'); b.textContent = n; b.onclick = () => cargarDiseno(n); pick.appendChild(b); });
+
+// ---------- Muro de fotos ----------
+// 18 entran en la portada, 40 más detrás del diseño, 60 de golpe en el carrete y luego
+// siguen entrando hasta el final. No se borran: el fondo se va saturando según bajas.
+const capasSec = $('capas'), reel = $('carrete'), cta = $('cta');
+const muro = crearMuro({
+  fotos: ordenFotos(true),
+  umbral: k => {
+    const H = innerHeight, ini = capasSec.offsetTop, car = reel.offsetTop, largo = reel.offsetHeight - H;
+    if (k < 18) return (.04 + k * .05) * H;
+    if (k < 58) return ini + (k - 17) / 41 * (car - ini);
+    if (k < 118) return car + (.03 + (k - 58) / 60 * .5) * largo;
+    return car + largo + (k - 117) * .22 * H;
+  },
+});
+
+function onScroll() {
+  muro.update();
+  const H = innerHeight;
+  // Velo: claro en la portada y en el carrete, oscuro detrás del diseño para que destaque
+  const rr = reel.getBoundingClientRect();
+  const enCarrete = rr.top < H * .5 && rr.bottom > H * .5;
+  const enPortada = scrollY < H * .6;
+  muro.veil.style.opacity = enPortada ? .3 : enCarrete ? .2 : .85;
+  cta.style.opacity = clamp((-rr.top / (rr.height - H) - .45) / .1);
+  // Capas
+  if (!actual) return;
+  const rc = capasSec.getBoundingClientRect();
+  const p = clamp(-rc.top / (rc.height - H));
+  const paso = Math.min(imgs.length - 1, Math.floor(clamp((p - .04) / .88) * imgs.length));
+  const enPrenda = actual.pasos[paso].tipo === 'prenda';
+  imgs.forEach((im, k) => im.classList.toggle('on', enPrenda ? k === paso : k <= paso && actual.pasos[k].tipo === 'capa'));
+  const nCapas = actual.pasos.filter(s => s.tipo === 'capa').length;
+  $('steplabel').textContent = enPrenda ? actual.pasos[paso].label : `Capa ${paso + 1} de ${nCapas}`;
+  $('cur').textContent = pad(paso + 1);
+  $('bar').style.width = ((paso + 1) / imgs.length * 100) + '%';
+}
+addEventListener('scroll', onScroll, { passive: true });
+addEventListener('load', () => { muro.recalcular(); onScroll(); });
+cargarDiseno('Casino & Roulette');
+
+// ---------- Tele VHS: el mismo postproceso que el VHS de SUPVISIONS (applyVHS) ----------
+// Sobre un fondo de ruido blanco (tapa los huecos de los PNG) se pinta el diseño y después:
+// aberración cromática y sangrado, bandas de tracking, scanlines con barra, ruido en overlay y viñeta.
+(async () => {
+  const archivo = await cargarArchivo();
+  const VHS = { scan: .35, chroma: .4, bleed: .3, noise: .25, wobble: .3, vignette: .5 }; // valores de serie de SUPVISIONS
+  const cv = $('tvcv'), c = cv.getContext('2d'), buf = document.createElement('canvas'), b = buf.getContext('2d');
+  const rnd = (a, z) => a + Math.random() * (z - a);
+  let W = 0, H = 0, DPR = 1, ruido = [], vig = null, scanPat = null;
+  let img = null, cambio = -1e9, visible = false, orden = [], pos = -1, pausa = false, inicio = performance.now();
+
+  function medir() {
+    DPR = Math.min(devicePixelRatio || 1, 2);
+    W = cv.width = Math.max(1, Math.round(cv.clientWidth * DPR)); H = cv.height = Math.max(1, Math.round(cv.clientHeight * DPR));
+    buf.width = W; buf.height = H; ruido = []; vig = null; scanPat = null;
+  }
+  function framesRuido() {
+    const nw = Math.ceil(W / 3), nh = Math.ceil(H / 3);
+    for (let k = 0; k < 4; k++) {
+      const cc = document.createElement('canvas'); cc.width = nw; cc.height = nh;
+      const x = cc.getContext('2d'), id = x.createImageData(nw, nh), d = id.data;
+      for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255 | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
+      x.putImageData(id, 0, 0); ruido.push(cc);
+    }
+  }
+  function patronScan() {
+    const cc = document.createElement('canvas'), step = Math.max(2, Math.round(2 * DPR));
+    cc.width = 1; cc.height = step * 2;
+    const x = cc.getContext('2d'); x.fillStyle = 'rgba(0,0,0,0.7)'; x.fillRect(0, 0, 1, step);
+    return c.createPattern(cc, 'repeat');
+  }
+  function vineta() {
+    const cc = document.createElement('canvas'); cc.width = W; cc.height = H;
+    const x = cc.getContext('2d'), g = x.createRadialGradient(W / 2, H / 2, Math.min(W, H) * .3, W / 2, H / 2, Math.max(W, H) * .72);
+    g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(0,0,0,${VHS.vignette * .85})`);
+    x.fillStyle = g; x.fillRect(0, 0, W, H); return cc;
+  }
+  function dibujar(ms) {
+    const t = ms / 1000;
+    if (!ruido.length) framesRuido();
+    if (!scanPat) scanPat = patronScan();
+    if (!vig) vig = vineta();
+    const nf = ruido[(t * 20 | 0) % 4], enCambio = ms - cambio < 420;
+    // 0) fondo de ruido blanco y diseño
+    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1; c.fillStyle = '#0c0e0d'; c.fillRect(0, 0, W, H);
+    c.imageSmoothingEnabled = false; c.globalAlpha = enCambio ? 1 : .5; c.drawImage(nf, 0, 0, W, H); c.imageSmoothingEnabled = true; c.globalAlpha = 1;
+    if (img && img.complete && img.naturalWidth && !enCambio) {
+      const s = Math.min(W * .8 / img.naturalWidth, H * .78 / img.naturalHeight), w = img.naturalWidth * s, h = img.naturalHeight * s;
+      c.drawImage(img, (W - w) / 2 + (Math.random() < .06 ? rnd(-4, 4) * DPR : 0), (H - h) / 2, w, h);
+    }
+    // 1) aberración cromática y sangrado
+    b.clearRect(0, 0, W, H); b.drawImage(cv, 0, 0);
+    const dx = (VHS.chroma * 12 + Math.sin(t * 6) * VHS.wobble * 4) * DPR;
+    c.globalCompositeOperation = 'screen';
+    c.globalAlpha = .45 * VHS.chroma; c.drawImage(buf, dx, 0); c.drawImage(buf, -dx, 0);
+    c.globalAlpha = .3 * VHS.bleed; c.drawImage(buf, dx * 2.2, VHS.bleed * 2 * DPR);
+    c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+    // 2) tracking: bandas desplazadas, más fuertes al cambiar de canal
+    const wob = enCambio ? 1 : VHS.wobble, bandas = 6 + ((wob * 10) | 0);
+    for (let k = 0; k < bandas; k++) {
+      const by = ((k / bandas) * H + (t * 120 * wob) % (H / bandas)) | 0, bh = Math.max(2, (H / bandas) * rnd(.3, .8)) | 0;
+      const off = Math.sin(t * 7 + k * 1.3) * wob * 30 * DPR + (Math.random() - .5) * wob * 10 * DPR;
+      c.drawImage(buf, 0, by, W, bh, off, by, W, bh);
+    }
+    // 3) scanlines y barra brillante que baja
+    c.globalCompositeOperation = 'multiply'; c.globalAlpha = VHS.scan; c.fillStyle = scanPat; c.fillRect(0, 0, W, H);
+    c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+    const barY = ((t * 80) % (H / DPR)) * DPR, g = c.createLinearGradient(0, barY - 50 * DPR, 0, barY + 50 * DPR);
+    g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.5, `rgba(255,255,255,${VHS.scan * .1})`); g.addColorStop(1, 'rgba(255,255,255,0)');
+    c.fillStyle = g; c.fillRect(0, barY - 50 * DPR, W, 100 * DPR);
+    // 4) ruido encima y 5) viñeta
+    c.globalCompositeOperation = 'overlay'; c.globalAlpha = VHS.noise * .5; c.imageSmoothingEnabled = false; c.drawImage(nf, 0, 0, W, H);
+    c.imageSmoothingEnabled = true; c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+    c.drawImage(vig, 0, 0);
+    $('tvtrack').style.opacity = enCambio ? 1 : 0;
+  }
+  new IntersectionObserver(es => visible = es[0].isIntersecting).observe(cv);
+  new ResizeObserver(medir).observe(cv);
+  let ultimo = 0;
+  (function bucle(ms) {
+    requestAnimationFrame(bucle);
+    if (!visible || ms - ultimo < 33) return; // ~30 fps y solo en pantalla
+    ultimo = ms;
+    if (!W) medir();
+    dibujar(ms);
+    const s = Math.floor((ms - inicio) / 1000);
+    $('tvtime').textContent = `SP ${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`;
+  })(0);
+  function rebarajar() {
+    const ultimo = orden[orden.length - 1];
+    orden = barajar(archivo.map((_, k) => k));
+    if (orden[0] === ultimo && orden.length > 1) [orden[0], orden[1]] = [orden[1], orden[0]];
+  }
+  function canal(paso) {
+    pos += paso;
+    if (pos >= orden.length || !orden.length) { rebarajar(); pos = 0; }
+    if (pos < 0) pos = orden.length - 1;
+    const d = archivo[orden[pos]];
+    cambio = performance.now();
+    img = new Image(); img.src = `${MEDIA}tv_${pad(d.id, 3)}.png`;
+    $('tvch').textContent = `CH ${pad(pos + 1)}`;
+    $('tvlabel').textContent = `GETALIFE.ARCHIVE · ${d.anio}`;
+    $('tvcount').textContent = `${pad(pos + 1, 3)} / ${pad(orden.length, 3)}`;
+  }
+  $('tvnext').onclick = () => canal(1);
+  $('tvprev').onclick = () => canal(-1);
+  $('tv').onmouseenter = () => pausa = true; $('tv').onmouseleave = () => pausa = false;
+  setInterval(() => { if (visible && !pausa) canal(1); }, 2600);
+  canal(1);
+})();
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+
+const MODELOS = {
+  'Get a Life 3D': { f: 'm_r21', meta: '2024 · Illustrator 3D', desc: 'El logo GET A LIFE con volumen, extruido y biselado.' },
+  'Get a Life arco': { f: 'm_rot', meta: '2023 · Blender', desc: 'Las letras «getalife» en arco, pensadas para girar.' },
+  'Esfera': { f: 'm_sfera', meta: '2023 · Illustrator 3D', desc: 'GET A LIFE envuelto alrededor de una esfera.' },
+};
+const box = document.getElementById('viewer'), loading = document.getElementById('loading');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.25;
+box.prepend(renderer.domElement);
+const scene = new THREE.Scene();
+
+// Estudio de alto contraste: sala negra con softboxes blancos y una tira esmeralda.
+const estudio = new THREE.Scene();
+estudio.background = new THREE.Color(0x000000);
+const panel = (w, h, color, x, y, z, ry = 0, rx = 0, fuerza = 1) => {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(fuerza), side: THREE.DoubleSide }));
+  m.position.set(x, y, z); m.rotation.set(rx, ry, 0); estudio.add(m);
+};
+panel(14, 4, 0xffffff, 0, 7, 0, 0, Math.PI / 2, 3);
+panel(3, 12, 0xffffff, -7, 0, 0, Math.PI / 2, 0, 2.5);
+panel(3, 12, 0x3be0a5, 7, 0, 0, -Math.PI / 2, 0, 2.5);
+panel(14, 1.2, 0xffffff, 0, 1.5, -7, 0, 0, 2);
+panel(5, 5, 0xffffff, -4, 2, 7, Math.PI * .75, 0, 2);
+panel(2, 8, 0xd9fff1, 4, -1, 7, -Math.PI * .75, 0, 1.5);
+panel(14, 14, 0x1a1f1d, 0, -7, 0, 0, Math.PI / 2, 1);
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(estudio, .01).texture;
+scene.add(new THREE.AmbientLight(0xffffff, .25));
+
+const MATS = {
+  'Cromo': new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 1, roughness: .035, clearcoat: 1, clearcoatRoughness: .02, envMapIntensity: 1.5, side: THREE.DoubleSide }),
+  'Esmeralda': new THREE.MeshPhysicalMaterial({ color: 0x1fd394, metalness: .55, roughness: .1, clearcoat: 1, clearcoatRoughness: .04, envMapIntensity: 1.6, emissive: 0x0a7a50, emissiveIntensity: .45, side: THREE.DoubleSide }),
+  'Holográfico': new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 1, roughness: .1, iridescence: 1, iridescenceIOR: 1.9, iridescenceThicknessRange: [150, 900], envMapIntensity: 1.7, side: THREE.DoubleSide }),
+};
+let mat = MATS['Cromo'];
+const camera = new THREE.PerspectiveCamera(35, 1, .01, 1000);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.autoRotate = true; controls.autoRotateSpeed = 1.6;
+controls.addEventListener('start', () => controls.autoRotate = false);
+const loader = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/gltf/'));
+let actual = null;
+
+function pintar() { if (actual) actual.traverse(o => { if (o.isMesh) o.material = mat; }); }
+function cargar(nombre) {
+  const m = MODELOS[nombre];
+  loading.style.display = '';
+  document.getElementById('m3name').textContent = nombre;
+  document.getElementById('m3meta').textContent = m.meta;
+  document.getElementById('m3desc').textContent = m.desc;
+  document.querySelectorAll('#pick3d button').forEach(b => b.classList.toggle('sel', b.textContent === nombre));
+  loader.load(`assets/media/${m.f}.glb`, g => {
+    if (actual) scene.remove(actual);
+    actual = g.scene;
+    actual.traverse(o => { if (o.isMesh) o.geometry.computeVertexNormals(); });
+    pintar();
+    const caja = new THREE.Box3().setFromObject(actual), centro = caja.getCenter(new THREE.Vector3()), tam = caja.getSize(new THREE.Vector3()).length();
+    actual.position.sub(centro);
+    scene.add(actual);
+    camera.position.set(0, tam * .3, tam * 1.6); camera.near = tam / 100; camera.far = tam * 10; camera.updateProjectionMatrix();
+    controls.target.set(0, 0, 0); controls.autoRotate = true; controls.update();
+    loading.style.display = 'none';
+  }, undefined, e => { loading.textContent = 'No se pudo cargar'; console.error(e); });
+}
+const boton = (cont, texto, fn) => { const b = document.createElement('button'); b.textContent = texto; b.onclick = fn; document.getElementById(cont).appendChild(b); return b; };
+Object.keys(MODELOS).forEach(n => boton('pick3d', n, () => cargar(n)));
+Object.keys(MATS).forEach(n => boton('pickmat', n, () => {
+  mat = MATS[n]; pintar();
+  document.querySelectorAll('#pickmat button').forEach(b => b.classList.toggle('sel', b.textContent === n));
+}));
+document.querySelector('#pickmat button').classList.add('sel');
+
+function size() { const w = box.clientWidth, h = box.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+new ResizeObserver(size).observe(box); size();
+let enPantalla = false;
+new IntersectionObserver(es => enPantalla = es[0].isIntersecting).observe(box);
+renderer.setAnimationLoop(() => { if (!enPantalla) return; controls.update(); renderer.render(scene, camera); });
+cargar('Get a Life 3D');
+</script>
+</body>
+</html>

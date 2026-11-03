@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23030706%27/%3E%3Ctext x=%2732%27 y=%2745%27 font-family=%27Arial Black,Arial%27 font-weight=%27900%27 font-size=%2738%27 text-anchor=%27middle%27 fill=%27%233BE0A5%27%3EG%3C/text%3E%3C/svg%3E">
+<title>Carrete — Gonzalo LLM</title>
+<meta name="description" content="426 fotos de viajes, calle y gente hechas por Gonzalo Llinares, en orden aleatorio.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Caveat:wght@500;600&family=Inter:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/tema.css">
+<style>
+  .intro { position: relative; height: 100vh; min-height: 560px; display: grid; place-items: center; text-align: center; }
+  .intro .outline { display: block; font-size: 16vw; }
+  .intro .glass { display: inline-block; margin-top: 16px; padding: 18px 22px; border-radius: 22px; max-width: 520px; font: 400 16px/1.5 Inter, sans-serif; }
+  .intro .glass em { color: var(--emerald-2); font-style: normal; font-weight: 600; }
+  .intro .chips { justify-content: center; margin-top: 14px; }
+
+  .roll { position: relative; }
+  .roll .stage { position: sticky; top: 0; height: 100vh; display: grid; grid-template-columns: 1fr 1.25fr; gap: 26px; align-items: center; padding: 96px 5vw 30px; }
+  .panel { padding: 28px; }
+  .panel .count { font: 200 clamp(56px,8vw,120px)/.9 Inter, sans-serif; letter-spacing: -.04em; margin-top: 10px; }
+  .panel .count b { font-weight: 800; color: var(--emerald-2); }
+  .panel p { font: 400 15px/1.5 Inter, sans-serif; margin: 14px 0 18px; max-width: 36ch; }
+  .bar { height: 3px; border-radius: 3px; background: rgba(255,255,255,.18); position: relative; margin-bottom: 18px; overflow: hidden; }
+  .bar span { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, var(--emerald), var(--emerald-2)); width: 0; }
+  .panel .acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+  .spot { justify-self: center; width: min(560px, 100%); padding: 14px 14px 58px; border-radius: 18px; transform: rotate(1.5deg); cursor: zoom-in; transition: transform .5s; }
+  .spot:hover { transform: rotate(0) scale(1.01); }
+  .spot .marco { position: relative; aspect-ratio: 4/5; border-radius: 8px; overflow: hidden; background: rgba(0,0,0,.3); }
+  .spot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .45s; }
+  .spot img.on { opacity: 1; }
+  .spot figcaption { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; font: 600 26px Caveat, cursive; }
+
+  .fin { min-height: 70vh; display: grid; place-items: center; text-align: center; }
+  .fin .glass { padding: 34px 38px; max-width: 560px; }
+  .fin h2 { font: 800 clamp(26px,3.6vw,46px)/1.05 Archivo, sans-serif; font-stretch: 112%; }
+  .fin p { font: 400 16px/1.5 Inter, sans-serif; margin: 14px 0 20px; }
+  .fin .acciones { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+
+  @media (max-width: 760px) {
+    .roll .stage { grid-template-columns: 1fr; grid-template-rows: auto 1fr; padding: 86px 14px 14px; gap: 12px; }
+    .panel { padding: 16px; order: 2; }
+    .panel .count { font-size: 48px; }
+    .panel p { display: none; }
+    .spot { width: min(320px, 82vw); order: 1; }
+  }
+</style>
+</head>
+<body>
+
+<header class="glass">
+  <a class="wordmark" href="index.html">GONZALO LLM</a>
+  <nav>
+    <a class="here" href="fotos.html">FOTOS</a><a href="index.html#getalife">GET A LIFE</a><a href="index.html#tresde">3D</a><a href="index.html#clientes">CLIENTES</a><a href="index.html#lab">IA</a><a href="cv.html">CV</a><a href="index.html#contacto">CONTACTO</a>
+  </nav>
+  <a class="ig glass em pill" href="https://instagram.com/getalife.plz" target="_blank">@GETALIFE.PLZ ↗</a>
+</header>
+
+<main id="top">
+  <section class="intro">
+    <div>
+      <span class="outline">CARRETE</span>
+      <div class="glass" data-rev>426 fotos de viajes, calle y gente, <em>hechas por mí</em>. Salen en un orden distinto cada vez: baja y se irán sumando al fondo una a una.</div>
+      <div class="chips" data-rev><button class="btn" id="barajar1">Barajar ↻</button><a class="btn" href="https://vsco.co/gonzalo-llm" target="_blank">VSCO ↗</a><a class="btn" href="index.html">← Volver al inicio</a></div>
+    </div>
+  </section>
+
+  <section class="roll" id="roll">
+    <div class="stage">
+      <div class="panel glass">
+        <div class="tag" style="color:var(--muted)">Carrete · orden aleatorio</div>
+        <div class="count"><b id="cur">000</b>/426</div>
+        <p>Cada foto que bajas se queda en el fondo. Las más antiguas se van apagando para dejar sitio. Pulsa la foto grande para verla a pantalla completa.</p>
+        <div class="bar"><span id="bar"></span></div>
+        <div class="acciones"><button class="btn em" id="grande">Ver en grande</button><button class="btn" id="barajar2">Barajar ↻</button></div>
+      </div>
+      <figure class="spot glass light" id="spot">
+        <div class="marco"><img id="sa" alt=""><img id="sb" alt=""></div>
+        <figcaption id="cap">baja para empezar</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="fin">
+    <div class="glass" data-rev>
+      <h2>Fin del carrete</h2>
+      <p>Has visto las 426. Si vuelves a entrar, saldrán en otro orden.</p>
+      <div class="acciones"><button class="btn em" id="barajar3">Barajar y empezar otra vez ↻</button><a class="btn" href="index.html">Volver al inicio</a><a class="btn" href="cv.html">Ver mi CV</a></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="band glass light" id="pie"></div>
+  <div class="bar2 glass"><span class="tag">Fotos, diseños, mockups y 3D: todo creado por @gonzalo.llm · 2026</span><a class="tag" href="#top">Volver arriba ↑</a></div>
+</footer>
+
+<div class="lb" id="lb">
+  <button class="close btn glass" id="lbx">Cerrar ✕</button>
+  <button class="nav prev glass" id="lbp">‹</button>
+  <img id="lbimg" alt="">
+  <button class="nav next glass" id="lbn">›</button>
+  <span class="cnt tag glass pill" id="lbc"></span>
+</div>
+
+<script src="assets/js/comun.js"></script>
+<script>
+// Orden aleatorio cada vez que se entra; la página mide 9 % de pantalla por foto.
+const orden = ordenFotos(false);
+const POR_FOTO = .09;
+const roll = $('roll');
+roll.style.height = `${100 + orden.length * POR_FOTO * 100}vh`;
+
+const muro = crearMuro({ fotos: orden, tope: 80, min: 12, max: 22, umbral: k => roll.offsetTop + (k + .5) * POR_FOTO * innerHeight });
+muro.veil.style.opacity = .7;
+
+let actual = -1, capaA = true;
+function destacar(k) {
+  if (k === actual) return;
+  actual = k;
+  const img = capaA ? $('sa') : $('sb'), otra = capaA ? $('sb') : $('sa');
+  capaA = !capaA;
+  img.onload = () => { img.classList.add('on'); otra.classList.remove('on'); };
+  img.src = `${MEDIA}gf_${pad(orden[k], 3)}.jpg`;
+  $('cap').textContent = `foto ${k + 1} de ${orden.length}`;
+}
+function onScroll() {
+  const n = muro.update();
+  $('cur').textContent = pad(n, 3);
+  $('bar').style.width = (n / orden.length * 100) + '%';
+  if (n > 0) destacar(n - 1);
+}
+addEventListener('scroll', onScroll, { passive: true });
+addEventListener('load', () => { muro.recalcular(); onScroll(); });
+onScroll();
+
+const otraVez = () => { scrollTo({ top: 0, behavior: 'instant' }); location.reload(); };
+['barajar1', 'barajar2', 'barajar3'].forEach(id => $(id).onclick = otraVez);
+
+// Visor a pantalla completa, en el mismo orden aleatorio
+const lb = $('lb'); let lbk = 0;
+function abrir(k) { lbk = (k + orden.length) % orden.length; $('lbimg').src = `${MEDIA}gf_${pad(orden[lbk], 3)}.jpg`; $('lbc').textContent = `${lbk + 1} / ${orden.length}`; lb.classList.add('on'); }
+$('spot').onclick = () => abrir(Math.max(0, actual));
+$('grande').onclick = () => abrir(Math.max(0, actual));
+$('lbx').onclick = () => lb.classList.remove('on');
+$('lbp').onclick = () => abrir(lbk - 1); $('lbn').onclick = () => abrir(lbk + 1);
+lb.onclick = e => { if (e.target === lb) lb.classList.remove('on'); };
+addEventListener('keydown', e => {
+  if (!lb.classList.contains('on')) return;
+  if (e.key === 'Escape') lb.classList.remove('on');
+  if (e.key === 'ArrowLeft') abrir(lbk - 1);
+  if (e.key === 'ArrowRight') abrir(lbk + 1);
+});
+</script>
+</body>
+</html>

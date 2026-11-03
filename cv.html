@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23030706%27/%3E%3Ctext x=%2732%27 y=%2745%27 font-family=%27Arial Black,Arial%27 font-weight=%27900%27 font-size=%2738%27 text-anchor=%27middle%27 fill=%27%233BE0A5%27%3EG%3C/text%3E%3C/svg%3E">
+<title>Currículum — Gonzalo Llinares</title>
+<meta name="description" content="Currículum de Gonzalo Llinares Millet: ADE + Marketing, gestión comercial, marca, e-commerce y contenido.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Inter:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/tema.css">
+<style>
+  .hero { position: relative; height: 100vh; min-height: 640px; }
+  .hero .sub { position: absolute; z-index: 3; left: 0; right: 0; top: calc(15vh + 13.5vw); padding: 0 2vw; font: 800 4.2vw/1 Archivo, sans-serif; font-stretch: 125%; letter-spacing: -.02em;
+    color: rgba(255,255,255,.06); -webkit-text-stroke: 1.2px rgba(255,255,255,.9); white-space: nowrap; }
+  .hero .card { position: absolute; z-index: 3; left: 22px; right: 22px; bottom: 22px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 22px; padding: 24px 26px; align-items: center; }
+  .hero .card h1 { font: 400 clamp(20px,2.2vw,28px)/1.25 Inter, sans-serif; }
+  .hero .card h1 em { color: var(--emerald-2); font-style: normal; font-weight: 600; }
+  .hero .card .chips { margin-top: 14px; }
+  .hero .card .chip a:hover { color: var(--emerald-2); }
+  .descargas { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+  .descargas .btn { font-size: 11px; padding: 14px 20px; }
+
+  .cifras { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+  .cifra { padding: 26px; }
+  .cifra b { display: block; font: 800 clamp(44px,6vw,84px)/.9 Archivo, sans-serif; font-stretch: 112%; color: var(--emerald-2); }
+  .cifra span { display: block; margin-top: 10px; font: 400 14px/1.4 Inter, sans-serif; }
+
+  .perfil { padding: 34px 36px; font: 300 clamp(20px,2.3vw,30px)/1.3 Inter, sans-serif; }
+  .perfil em { color: var(--emerald-2); font-style: normal; font-weight: 500; }
+
+  /* Línea de tiempo que se rellena al bajar */
+  .exp { position: relative; padding-left: 46px; }
+  .exp::before { content: ""; position: absolute; left: 16px; top: 8px; bottom: 8px; width: 2px; border-radius: 2px; background: rgba(255,255,255,.15); }
+  .exp .fill { position: absolute; left: 16px; top: 8px; width: 2px; border-radius: 2px; background: linear-gradient(var(--emerald-2), var(--emerald)); height: 0; box-shadow: 0 0 12px rgba(59,224,165,.6); }
+  .job { position: relative; padding: 26px 28px; margin-bottom: 22px; }
+  .job::after { content: ""; position: absolute; left: -36px; top: 32px; width: 14px; height: 14px; border-radius: 50%; background: var(--bg); box-shadow: 0 0 0 2px var(--emerald-2), 0 0 14px rgba(59,224,165,.7); }
+  .job .head { display: flex; justify-content: space-between; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+  .job h3 { font: 800 clamp(20px,2.2vw,28px)/1.1 Archivo, sans-serif; font-stretch: 112%; }
+  .job .when { color: var(--muted); }
+  .job .where { color: var(--emerald-2); margin-top: 6px; }
+  .job ul { margin-top: 14px; padding-left: 18px; }
+  .job li { font: 400 15px/1.55 Inter, sans-serif; margin-bottom: 6px; }
+  .job li::marker { color: var(--emerald-2); }
+  .job li b { font-weight: 600; }
+
+  .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .bloque { padding: 28px; }
+  .bloque h3 { font: 800 22px/1.1 Archivo, sans-serif; font-stretch: 112%; margin-bottom: 14px; }
+  .item { padding: 14px 0; border-top: 1px solid rgba(255,255,255,.14); }
+  .item:first-of-type { border-top: 0; }
+  .item b { display: block; font: 600 16px/1.35 Inter, sans-serif; }
+  .item span { display: block; color: var(--muted); font: 400 13px/1.45 Inter, sans-serif; margin-top: 3px; }
+  .item p { font: 400 14px/1.5 Inter, sans-serif; margin-top: 6px; }
+  .item a { color: var(--emerald-2); }
+
+  .skills h4 { color: var(--emerald-2); margin: 16px 0 10px; }
+  .skills h4:first-of-type { margin-top: 0; }
+  .skills .chip { opacity: 0; transform: translateY(10px) scale(.9); transition: opacity .4s, transform .5s cubic-bezier(.2,.8,.2,1); }
+  .skills.vis .chip { opacity: 1; transform: none; }
+  .lang { margin-bottom: 16px; }
+  .lang .t { display: flex; justify-content: space-between; font: 500 15px Inter, sans-serif; }
+  .lang .t span { color: var(--muted); font-size: 13px; }
+  .lang .bar { height: 6px; border-radius: 6px; background: rgba(255,255,255,.12); margin-top: 8px; overflow: hidden; }
+  .lang .bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--emerald), var(--emerald-2)); transition: width 1.4s cubic-bezier(.2,.8,.2,1); }
+  .vis .lang .bar i { width: var(--w); }
+
+  .final { text-align: center; padding: 40px 30px; }
+  .final h2 { font: 800 clamp(26px,3.6vw,46px)/1.05 Archivo, sans-serif; font-stretch: 112%; }
+  .final p { font: 400 16px/1.5 Inter, sans-serif; margin: 12px 0 20px; }
+  .final .acciones { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .final .btn { font-size: 11px; padding: 14px 20px; }
+
+  @media (max-width: 760px) {
+    .hero .sub { font-size: 6vw; top: calc(15vh + 16vw); }
+    .hero .card { grid-template-columns: 1fr; left: 14px; right: 14px; bottom: 14px; padding: 18px; }
+    .descargas { align-items: stretch; }
+    .cifras { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .cifra { padding: 18px; }
+    .dos { grid-template-columns: 1fr; }
+    .exp { padding-left: 34px; }
+    .exp::before, .exp .fill { left: 10px; }
+    .job { padding: 20px; }
+    .job::after { left: -30px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="glass">
+  <a class="wordmark" href="index.html">GONZALO LLM</a>
+  <nav>
+    <a href="fotos.html">FOTOS</a><a href="index.html#getalife">GET A LIFE</a><a href="index.html#tresde">3D</a><a href="index.html#clientes">CLIENTES</a><a href="index.html#lab">IA</a><a class="here" href="cv.html">CV</a><a href="index.html#contacto">CONTACTO</a>
+  </nav>
+  <a class="ig glass em pill" href="https://instagram.com/getalife.plz" target="_blank">@GETALIFE.PLZ ↗</a>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="name"><span>GONZALO</span></div>
+    <div class="sub">LLINARES MILLET</div>
+    <div class="card glass">
+      <div>
+        <div class="tag" style="color:var(--muted)">Currículum</div>
+        <h1 style="margin-top:8px">Marketing · <em>marca, e-commerce y contenido</em>. Graduado en ADE + Marketing, con experiencia comercial y proyectos propios de diseño e IA.</h1>
+        <div class="chips">
+          <span class="chip">Madrid · Valencia</span>
+          <span class="chip"><a href="mailto:gonzalo.llm01@gmail.com">gonzalo.llm01@gmail.com</a></span>
+          <span class="chip"><a href="tel:+34672402496">+34 672 40 24 96</a></span>
+          <span class="chip"><a href="https://www.linkedin.com/in/gonzalo-llinares-2a94a626a" target="_blank">LinkedIn ↗</a></span>
+        </div>
+      </div>
+      <div class="descargas">
+        <a class="btn em" href="assets/cv/CV_ES_MARKETING.pdf" download>Descargar CV en PDF (español) ↓</a>
+        <a class="btn" href="assets/cv/CV_EN_MARKETING.pdf" download>Download CV in PDF (English) ↓</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label-row"><i>01</i><span class="tag">En cifras</span><h2>CIFRAS</h2></div>
+    <div class="wrap">
+      <div class="cifras">
+        <div class="cifra glass" data-rev><b data-num="180">0</b><span>vehículos al mes que gestiono en Moll Motor</span></div>
+        <div class="cifra glass" data-rev><b data-num="14">0</b><span>marcas de coche con las que trabajo cada mes</span></div>
+        <div class="cifra glass" data-rev><b data-num="2" data-suf=".º">0</b><span>puesto en la European Markstrat (Bucarest, 2024)</span></div>
+        <div class="cifra glass" data-rev><b>C1</b><span>de inglés (TOEFL), con un año de instituto en EE. UU.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label-row"><i>02</i><span class="tag">Perfil</span><h2>PERFIL</h2></div>
+    <div class="wrap">
+      <p class="perfil glass" data-rev>Graduado en <em>ADE + Marketing</em> que lleva el marketing a la práctica: <em>2.º puesto</em> en la European Markstrat y creación de una marca de moda con un equipo internacional en el programa BrandY. Manejo Shopify, WooCommerce, Photoshop, Illustrator y Premiere Pro, y automatizo contenido con IA. Hoy trabajo en gestión comercial en Moll Motor.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="label-row"><i>03</i><span class="tag">Experiencia</span><h2>EXPERIENCIA</h2></div>
+    <div class="wrap">
+      <div class="exp" id="exp">
+        <div class="fill" id="fill"></div>
+        <article class="job glass" data-rev>
+          <div class="head"><h3>Técnico en Gestión Comercial y Ventas</h3><span class="tag when">Oct 2025 – actualidad</span></div>
+          <div class="tag where">Moll Motor S.L.</div>
+          <ul>
+            <li>Gestión comercial y administrativa de una media de <b>180 vehículos al mes de 14 marcas</b>, desde la compra a marca hasta la matriculación.</li>
+            <li>Coordinación con los directores de venta de cada marca para cumplir objetivos mensuales, rappels y primas.</li>
+            <li>Revisión de márgenes y elaboración del informe BM que se reporta a las marcas.</li>
+            <li>Colaboración con el equipo de ingeniería para integrar IA en los procesos, aportando el conocimiento del flujo comercial.</li>
+            <li>Atención al cliente: gestión y resolución de llamadas.</li>
+          </ul>
+        </article>
+        <article class="job glass" data-rev>
+          <div class="head"><h3>Prácticas de agente comercial</h3><span class="tag when">Jul – Sep 2023</span></div>
+          <div class="tag where">Locatec S.L.</div>
+          <ul>
+            <li>Visitas a clientes y análisis de zonas con clientes potenciales.</li>
+            <li>Captación de nuevos clientes y elaboración de propuestas comerciales.</li>
+            <li>Creación de la base de datos de clientes visitados y captados.</li>
+          </ul>
+        </article>
+        <article class="job glass" data-rev>
+          <div class="head"><h3>Asistente de logística y almacén</h3><span class="tag when">Veranos 2020 y 2022</span></div>
+          <div class="tag where">Tecatel S.L.</div>
+          <ul>
+            <li>Preparación de pedidos, registro de entradas, gestión y recolocación de stock y devoluciones (RMA).</li>
+          </ul>
+        </article>
+        <article class="job glass" data-rev>
+          <div class="head"><h3>Asistente personal en formación</h3><span class="tag when">Jul – Ago 2018</span></div>
+          <div class="tag where">Gestión de Proyectos Gandía (GpG)</div>
+          <ul>
+            <li>Control de pagos de vecinos en Excel, gestión de quejas y cartas informativas a comunidades.</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label-row"><i>04</i><span class="tag">Formación, logros y proyectos</span><h2>FORMACIÓN</h2></div>
+    <div class="wrap">
+      <div class="dos">
+        <div class="bloque glass" data-rev>
+          <h3>Formación</h3>
+          <div class="item"><b>ADE + Marketing</b><span>Universidad CEU Cardenal Herrera · 2019 – 2024</span></div>
+          <div class="item"><b>Año de bachillerato en EE. UU.</b><span>Spring Lake High School · 2017 – 2018</span></div>
+          <h3 style="margin-top:22px">Logros</h3>
+          <div class="item"><b>2.º puesto, European Markstrat</b><span>Simulación de estrategia de marketing · Bucarest · 2024</span></div>
+          <div class="item"><b>BrandY (Erasmus+)</b><span>Creación de una marca de moda en un equipo internacional · Brujas · 2023</span></div>
+        </div>
+        <div class="bloque glass" data-rev>
+          <h3>Proyectos propios</h3>
+          <div class="item"><b>GET A LIFE · marca de ropa</b><span>Desde 2020</span><p>Diseño la marca de principio a fin: logos, gráficos, mockups, colecciones y 3D. <a href="index.html#getalife">Verla ↗</a></p></div>
+          <div class="item"><b>Canal de YouTube automático</b><span>Proyecto personal · 2026</span><p>Con Claude Code, un sistema que investiga temas, escribe guiones originales, los narra con voz sintética y monta vídeos largos de filosofía en castellano. Publica un vídeo nuevo cada día.</p></div>
+          <div class="item"><b>Simulador de inversión con IA</b><span>Proyecto personal · 2026</span><p>App con dinero ficticio y bots que combinan reglas cuantitativas con un modelo de IA local (Ollama), bajo un gestor de riesgo.</p></div>
+          <div class="item"><b>Fotografía</b><span>426 fotos en el carrete</span><p>Viajes, calle y gente. <a href="fotos.html">Ver el carrete ↗</a></p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label-row"><i>05</i><span class="tag">Habilidades e idiomas</span><h2>HABILIDADES</h2></div>
+    <div class="wrap">
+      <div class="dos">
+        <div class="bloque glass skills" data-rev>
+          <h4 class="tag">Marketing</h4>
+          <div class="chips"><span class="chip">Estrategia de marketing</span><span class="chip">Gestión de marca</span><span class="chip">E-commerce</span><span class="chip">Contenido y vídeo</span><span class="chip">Análisis de zonas y clientes</span><span class="chip">Automatización con IA</span></div>
+          <h4 class="tag">Herramientas</h4>
+          <div class="chips"><span class="chip">Shopify</span><span class="chip">WooCommerce</span><span class="chip">Photoshop</span><span class="chip">Illustrator</span><span class="chip">Premiere Pro</span><span class="chip">Blender</span><span class="chip">Excel</span><span class="chip">Claude Code / GPT</span><span class="chip">Quiter Auto (DMS)</span></div>
+          <h4 class="tag">Competencias</h4>
+          <div class="chips"><span class="chip">Creatividad</span><span class="chip">Comunicación</span><span class="chip">Constancia</span><span class="chip">Resolución de problemas</span></div>
+        </div>
+        <div class="bloque glass" data-rev>
+          <h3>Idiomas</h3>
+          <div class="lang"><div class="t">Castellano <span>Nativo</span></div><div class="bar"><i style="--w:100%"></i></div></div>
+          <div class="lang"><div class="t">Valenciano <span>Nativo</span></div><div class="bar"><i style="--w:100%"></i></div></div>
+          <div class="lang"><div class="t">Inglés <span>C1 · TOEFL</span></div><div class="bar"><i style="--w:85%"></i></div></div>
+        </div>
+      </div>
+      <div class="final glass" data-rev style="margin-top:22px">
+        <h2>¿Hablamos?</h2>
+        <p>Busco puestos de marketing: marca, e-commerce y contenido. Llévate el CV o escríbeme directamente.</p>
+        <div class="acciones">
+          <a class="btn em" href="assets/cv/CV_ES_MARKETING.pdf" download>CV en PDF (español) ↓</a>
+          <a class="btn" href="assets/cv/CV_EN_MARKETING.pdf" download>CV in PDF (English) ↓</a>
+          <a class="btn" href="mailto:gonzalo.llm01@gmail.com">Escribirme ↗</a>
+          <a class="btn" href="index.html">Ver el portfolio ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="band glass light" id="pie"></div>
+  <div class="bar2 glass"><span class="tag">Fotos, diseños, mockups y 3D: todo creado por @gonzalo.llm · 2026</span><a class="tag" href="#top">Volver arriba ↑</a></div>
+</footer>
+
+<script src="assets/js/comun.js"></script>
+<script>
+// Fondo vivo: una foto nueva cada cuarto de pantalla
+const muro = crearMuro({ fotos: ordenFotos(true), tope: 45, umbral: k => (.04 + k * .25) * innerHeight });
+muro.veil.style.opacity = .85;
+
+// Cifras que cuentan al aparecer
+const contar = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  contar.unobserve(e.target);
+  const fin = +e.target.dataset.num, suf = e.target.dataset.suf || '', t0 = performance.now();
+  (function paso(t) {
+    const x = Math.min(1, (t - t0) / 1400);
+    e.target.textContent = Math.round(fin * (1 - Math.pow(1 - x, 3))) + suf;
+    if (x < 1) requestAnimationFrame(paso);
+  })(t0);
+}), { threshold: .5 });
+document.querySelectorAll('[data-num]').forEach(el => contar.observe(el));
+
+// Fichas de habilidades que entran una a una
+document.querySelectorAll('.skills .chip').forEach((c, i) => c.style.transitionDelay = `${i * 35}ms`);
+
+// La línea de experiencia se rellena según bajas
+const exp = $('exp'), fill = $('fill');
+function onScroll() {
+  muro.update();
+  const r = exp.getBoundingClientRect();
+  fill.style.height = `${clamp((innerHeight * .6 - r.top) / r.height) * (r.height - 16)}px`;
+}
+addEventListener('scroll', onScroll, { passive: true });
+addEventListener('load', () => { muro.recalcular(); onScroll(); });
+onScroll();
+</script>
+</body>
+</html>
