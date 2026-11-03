@@ -549,17 +549,19 @@ function cargarDiseno(nombre) {
 Object.keys(DISENOS).forEach(n => { const b = document.createElement('button'); b.textContent = n; b.onclick = () => cargarDiseno(n); pick.appendChild(b); });
 
 // ---------- Muro de fotos ----------
-// 18 entran en la portada, 40 más detrás del diseño, 60 de golpe en el carrete y luego
-// siguen entrando hasta el final. No se borran: el fondo se va saturando según bajas.
+// 24 ya están al abrir la página, 32 más entran en la portada, 64 detrás del diseño, 70 de golpe
+// en el carrete y luego siguen entrando hasta el final. Con más de 170 a la vez las más antiguas
+// se van, así el fondo está siempre lleno sin cargar cientos de imágenes de golpe.
 const capasSec = $('capas'), reel = $('carrete'), cta = $('cta');
 const muro = crearMuro({
-  fotos: ordenFotos(true),
+  fotos: ordenFotos(true), tope: 170, min: 16, max: 28,
   umbral: k => {
     const H = innerHeight, ini = capasSec.offsetTop, car = reel.offsetTop, largo = reel.offsetHeight - H;
-    if (k < 18) return (.04 + k * .05) * H;
-    if (k < 58) return ini + (k - 17) / 41 * (car - ini);
-    if (k < 118) return car + (.03 + (k - 58) / 60 * .5) * largo;
-    return car + largo + (k - 117) * .22 * H;
+    if (k < 24) return -1;
+    if (k < 56) return (.02 + (k - 24) * .028) * H;
+    if (k < 120) return ini + (k - 55) / 65 * (car - ini);
+    if (k < 190) return car + (.03 + (k - 120) / 70 * .5) * largo;
+    return car + largo + (k - 189) * .12 * H;
   },
 });
 
@@ -570,7 +572,7 @@ function onScroll() {
   const rr = reel.getBoundingClientRect();
   const enCarrete = rr.top < H * .5 && rr.bottom > H * .5;
   const enPortada = scrollY < H * .6;
-  muro.veil.style.opacity = enPortada ? .3 : enCarrete ? .2 : .85;
+  muro.veil.style.opacity = enPortada ? .35 : enCarrete ? .15 : .7;
   cta.style.opacity = clamp((-rr.top / (rr.height - H) - .45) / .1);
   // Capas
   if (!actual) return;

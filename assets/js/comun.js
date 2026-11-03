@@ -23,8 +23,10 @@ function ordenFotos(destacadasPrimero = true) {
 
 /* Muro de fotos de fondo. No es fijo: cada foto tiene un punto de scroll en el que entra.
    Con `tope`, al pasar de ese número las más antiguas se van y el fondo cambia mientras bajas;
-   sin tope, las fotos se acumulan. umbral(k) devuelve el scrollY (px) en que entra la foto k (creciente).
-   Usa las versiones de 800 px (gm_) para que el fondo se vea nítido. */
+   sin tope, las fotos se acumulan. umbral(k) devuelve el scrollY (px) en que entra la foto k (creciente);
+   con un umbral negativo la foto ya está al cargar la página (entran escalonadas).
+   Usa las versiones de 800 px (gm_) para que el fondo se vea nítido. Las que ya se fueron hace rato
+   se sacan de la página para no acumular cientos de imágenes en memoria. */
 function crearMuro({ fotos, umbral, tope = Infinity, min = 15, max = 26 }) {
   const wall = document.createElement('div'); wall.id = 'wall';
   const veil = document.createElement('div'); veil.id = 'veil';
@@ -44,7 +46,9 @@ function crearMuro({ fotos, umbral, tope = Infinity, min = 15, max = 26 }) {
     el.style.cssText = `left:calc(${(cx * 100).toFixed(1)}% - ${w / 2}vw); top:calc(${(cy * 100).toFixed(1)}% - ${(w * ratio / 2).toFixed(1)}vw); width:${w.toFixed(1)}vw; height:${(w * ratio).toFixed(1)}vw; --r:${((Math.random() - .5) * 12).toFixed(1)}deg; z-index:${k}`;
     el.innerHTML = `<div><img src="${MEDIA}gm_${pad(fotos[k], 3)}.jpg" alt=""></div>`;
     el.vel = .03 + Math.random() * .07;
+    if (umbrales[k] <= 0) el.firstChild.style.transitionDelay = `${Math.min(k, 40) * 45}ms`;
     wall.appendChild(el);
+    void el.offsetWidth; // fija el estado inicial para que la entrada se anime
     return el;
   }
   function update() {
@@ -52,12 +56,20 @@ function crearMuro({ fotos, umbral, tope = Infinity, min = 15, max = 26 }) {
     let n = 0;
     while (n < umbrales.length && umbrales[n] <= y) n++;
     for (let k = 0; k < Math.min(umbrales.length, n + 2); k++) {
+      if (k < n - tope - 8) { // se fue hace rato: fuera de la página
+        if (els[k]) { els[k].remove(); els[k] = null; }
+        continue;
+      }
       const el = els[k] || (els[k] = crear(k));
       el.classList.toggle('in', k < n && k >= n - tope);
       el.classList.toggle('old', k < n - tope);
       if (k < n && k >= n - tope) el.style.transform = `translateY(${(-(y - umbrales[k]) * el.vel).toFixed(1)}px)`;
     }
-    for (let k = n + 2; k < els.length; k++) if (els[k]) els[k].classList.remove('in', 'old');
+    for (let k = n + 2; k < els.length; k++) {
+      if (!els[k]) continue;
+      if (k > n + 30) { els[k].remove(); els[k] = null; } // muy por delante (al subir): fuera
+      else els[k].classList.remove('in', 'old');
+    }
     return n;
   }
   calcular();

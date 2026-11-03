@@ -249,9 +249,9 @@
 
 <script src="assets/js/comun.js"></script>
 <script>
-// Fondo vivo: una foto nueva cada cuarto de pantalla
-const muro = crearMuro({ fotos: ordenFotos(true), tope: 45, umbral: k => (.04 + k * .25) * innerHeight });
-muro.veil.style.opacity = .85;
+// 20 fotos ya están al abrir y luego entra una cada 15 % de pantalla
+const muro = crearMuro({ fotos: ordenFotos(true), tope: 90, umbral: k => k < 20 ? -1 : (.03 + (k - 19) * .15) * innerHeight });
+muro.veil.style.opacity = .75;
 
 // Cifras que cuentan al aparecer
 const contar = new IntersectionObserver(es => es.forEach(e => {

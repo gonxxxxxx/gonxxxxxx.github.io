@@ -117,10 +117,11 @@
 const orden = ordenFotos(false);
 const POR_FOTO = .09;
 const roll = $('roll');
-roll.style.height = `${100 + orden.length * POR_FOTO * 100}vh`;
+roll.style.height = `${100 + (orden.length - 40) * POR_FOTO * 100}vh`;
 
-const muro = crearMuro({ fotos: orden, tope: 80, min: 12, max: 22, umbral: k => roll.offsetTop + (k + .5) * POR_FOTO * innerHeight });
-muro.veil.style.opacity = .7;
+// 24 fotos ya están al abrir, 16 más entran en la intro y el resto con el carrete.
+const muro = crearMuro({ fotos: orden, tope: 110, min: 14, max: 24, umbral: k => k < 24 ? -1 : k < 40 ? (k - 23) / 17 * roll.offsetTop : roll.offsetTop + (k - 39.5) * POR_FOTO * innerHeight });
+muro.veil.style.opacity = .55;
 
 let actual = -1, capaA = true;
 function destacar(k) {
